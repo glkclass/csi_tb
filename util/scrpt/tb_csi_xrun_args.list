@@ -1,0 +1,26 @@
++define+YES_PROBE+YES_WAVE
+
+#+incdir+$UVM_HOME/src
+#+incdir+$UVM_HOME
+
++incdir+$DUTB_HOME/src/sve/dut_util+$DUTB_HOME/src/sve/dut_handler+$DUTB_HOME/src/sve/dut_seq+$DUTB_HOME/src/sve/dut_agent+$DUTB_HOME/src/sve/dut_env+$DUTB_HOME/src/sve/dut_scb+$DUTB_HOME/src/sve/dut_test
+
++incdir+../src/sve/seq+../src/sve/agent+../src/sve/env+../src/sve/scb+../src/sve/test
+
+
+-uvmhome CDNS-1.2
+#-uvmhome $UVM_HOME
+-uvmnocdnsextra
++UVM_NO_RELNOTES
++UVM_TESTNAME=dut_test
++UVM_VERBOSITY=UVM_HIGH
+#+UVM_CONFIG_DB_TRACE
+#-nowarn DLWNEW
+
+-top ttb
+
+-disable_sem2009
+-timescale 1ns/1ps
+-access
++rwc
+

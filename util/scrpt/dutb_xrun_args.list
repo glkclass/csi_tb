@@ -1,0 +1,5 @@
++incdir+$DUTB_HOME/src/sve/dut_util+$DUTB_HOME/src/sve/dut_handler+$DUTB_HOME/src/sve/dut_seq+$DUTB_HOME/src/sve/dut_agent+$DUTB_HOME/src/sve/dut_env+$DUTB_HOME/src/sve/dut_scb+$DUTB_HOME/src/sve/dut_test
+
+-uvmhome CDNS-1.2
+-uvmnocdnsextra
++UVM_VERBOSITY=UVM_HIGH

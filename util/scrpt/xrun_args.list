@@ -1,0 +1,19 @@
+#+define+YES_PROBE+YES_WAVE
++incdir+../src/sve/seq+../src/sve/agent+../src/sve/env+../src/sve/scb+../src/sve/test
+
+-uvmhome CDNS-1.2
+-uvmnocdnsextra
++UVM_NO_RELNOTES
++UVM_TESTNAME=dut_test
++UVM_VERBOSITY=UVM_HIGH
+
+-nowarn DLWNEW
+
+-reflib ./dutblib
+-top ttb
+
+-disable_sem2009
+-timescale 1ns/1ps
+#-access
+#+rwc
+
