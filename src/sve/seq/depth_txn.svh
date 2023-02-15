@@ -1,5 +1,5 @@
 // input dut control transaction - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-class depth_txn extends dut_txn_base #(depth_txn);
+class depth_txn extends dutb_txn_base #(depth_txn);
     `uvm_object_utils(depth_txn)
 
     rand logic   [p_depth_bit - 1 : 0]               depth;
@@ -7,8 +7,8 @@ class depth_txn extends dut_txn_base #(depth_txn);
     extern function new(string name = "depth_txn");
     extern virtual function vector pack2vector ();  // represent 'txn content' as 'vector of int'
     extern virtual function void unpack4vector (vector packed_txn); //extract 'txn content' from 'vector of int'
-    extern virtual function bit write (virtual dut_if dut_vif);  // write 'txn content' to interface
-    extern virtual function void read (virtual dut_if dut_vif);  // read 'txn content' from interface
+    extern virtual function bit write (dutb_if_proxy_base dutb_if);  // write 'txn content' to interface
+    extern virtual function void read (dutb_if_proxy_base dutb_if);  // read 'txn content' from interface
 
 endclass
 // - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -33,12 +33,12 @@ function void depth_txn::unpack4vector(vector packed_txn);
 endfunction
 
 
-function bit depth_txn::write(virtual dut_if dut_vif);
-    dut_vif.depth = depth;
+function bit depth_txn::write(dutb_if_proxy_base dutb_if);
+    // dut_vif.depth = depth;
 endfunction
 
 
-function void depth_txn::read(virtual dut_if dut_vif);
-    depth = dut_vif.depth;
+function void depth_txn::read(dutb_if_proxy_base dutb_if);
+    // depth = dut_vif.depth;
 endfunction
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -7,7 +7,11 @@ interface dut_if
 
 
     // DUT interface
-    logic           [p_width_bit-1 : 0]                 width;
+    logic           [P_CIN_DATA_WIDTH-1 : 0]                data;
+    logic                                                   valid;
+
+    
+
     logic           [p_height_bit-1 : 0]                height;
     logic                                               frame_start;
     logic                                               frame_finish;

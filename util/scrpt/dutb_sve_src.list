@@ -1,16 +1,15 @@
 # Global packages
-$DUTB_HOME/src/sve/typedef_pkg.sv
-$DUTB_HOME/src/sve/dut_param_pkg.sv
-$DUTB_HOME/src/sve/dut_tb_param_pkg.sv
-$DUTB_HOME/src/sve/dut_if.sv
+$DUTB_HOME/src/sve/dutb_typedef_pkg.sv
+$DUTB_HOME/src/sve/dutb_param_pkg.sv
+$DUTB_HOME/src/sve/dutb_if.sv
 
-$DUTB_HOME/src/sve/dut_util/dut_util_pkg.sv
-$DUTB_HOME/src/sve/dut_handler/dut_handler_pkg.sv
-$DUTB_HOME/src/sve/dut_seq/dut_sequence_pkg.sv
-$DUTB_HOME/src/sve/dut_agent/dut_agent_pkg.sv
-$DUTB_HOME/src/sve/dut_scb/dut_scb_pkg.sv
-$DUTB_HOME/src/sve/dut_env/dut_env_pkg.sv
-$DUTB_HOME/src/sve/dut_test/dut_test_pkg.sv
+$DUTB_HOME/src/sve/dutb_util/dutb_util_pkg.sv
+$DUTB_HOME/src/sve/dutb_util/dutb_if_proxy_pkg.sv
+$DUTB_HOME/src/sve/dutb_seq/dutb_sequence_pkg.sv
+$DUTB_HOME/src/sve/dutb_agent/dutb_agent_pkg.sv
+$DUTB_HOME/src/sve/dutb_scb/dutb_scb_pkg.sv
+$DUTB_HOME/src/sve/dutb_env/dutb_env_pkg.sv
+$DUTB_HOME/src/sve/dutb_test/dutb_test_pkg.sv
 
 
 

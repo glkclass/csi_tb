@@ -3,9 +3,9 @@
 #+incdir+$UVM_HOME/src
 #+incdir+$UVM_HOME
 
-+incdir+$DUTB_HOME/src/sve/dut_util+$DUTB_HOME/src/sve/dut_handler+$DUTB_HOME/src/sve/dut_seq+$DUTB_HOME/src/sve/dut_agent+$DUTB_HOME/src/sve/dut_env+$DUTB_HOME/src/sve/dut_scb+$DUTB_HOME/src/sve/dut_test
++incdir+$DUTB_HOME/src/sve/dutb_util+$DUTB_HOME/src/sve/dutb_if_proxy+$DUTB_HOME/src/sve/dutb_seq+$DUTB_HOME/src/sve/dutb_agent+$DUTB_HOME/src/sve/dutb_env+$DUTB_HOME/src/sve/dutb_scb+$DUTB_HOME/src/sve/dutb_test
 
-+incdir+../src/sve/seq+../src/sve/agent+../src/sve/env+../src/sve/scb+../src/sve/test
++incdir+../src/sve/dut_if_proxy+../src/sve/seq+../src/sve/agent+../src/sve/env+../src/sve/scb+../src/sve/test
 
 
 -uvmhome CDNS-1.2

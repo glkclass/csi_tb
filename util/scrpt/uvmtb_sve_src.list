@@ -1,16 +1,16 @@
 #$UVM_HOME/src/uvm.sv
 
-$DUT_TB_HOME/typedef_pkg.sv
+$DUT_TB_HOME/dutb_typedef_pkg.sv
+$DUT_TB_HOME/dutb_param_pkg.sv
 $DUT_TB_HOME/dut_param_pkg.sv
-$DUT_TB_HOME/dut_tb_param_pkg.sv
 
 
 $DUT_TB_HOME/dut_handler/dut_handler_pkg.sv
-$DUT_TB_HOME/dut_seq/dut_sequence_pkg.sv
-$DUT_TB_HOME/dut_agent/dut_agent_pkg.sv
-$DUT_TB_HOME/dut_scb/dut_scb_pkg.sv
-$DUT_TB_HOME/dut_env/dut_env_pkg.sv
-$DUT_TB_HOME/dut_test/dut_test_pkg.sv
+$DUT_TB_HOME/dut_seq/dutb_sequence_pkg.sv
+$DUT_TB_HOME/dut_agent/dutb_agent_pkg.sv
+$DUT_TB_HOME/dut_scb/dutb_scb_pkg.sv
+$DUT_TB_HOME/dut_env/dutb_env_pkg.sv
+$DUT_TB_HOME/dut_test/dutb_test_pkg.sv
 
 
 

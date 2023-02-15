@@ -1,7 +1,5 @@
 
-#../src/sve/typedef_pkg.sv
-#../src/sve/dut_param_pkg.sv
-#../src/sve/dut_tb_param_pkg.sv
+../src/sve/dut_param_pkg.sv
 ../src/sve/dut_if.sv
 ../src/sve/SRAM.v
 ../src/sve/dut_wrp.sv

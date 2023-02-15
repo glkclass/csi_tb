@@ -1,12 +1,12 @@
 // dut test point transaction - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-class dut_pout_txn extends dut_txn_base #(dut_pout_txn);
+class dut_pout_txn extends dutb_txn_base #(dut_pout_txn);
     `uvm_object_utils(dut_pout_txn)
     int     stuff [$];
 
     extern function new(string name = "dut_pout_txn");
     extern virtual function vector pack2vector ();  // represent 'txn content' as 'vector of int'
     extern virtual function void unpack4vector (vector packed_txn); //extract 'txn content' from 'vector of int'
-    extern function void read (virtual dut_if dut_vif);  // read 'txn content' from interface
+    extern function void read (dutb_if_proxy_base dutb_if);  // read 'txn content' from interface
     extern function dut_pout_txn pop_front();  // extract oldest txn
 endclass
 // - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -41,25 +41,25 @@ function void dut_pout_txn::unpack4vector(vector packed_txn);
 endfunction
 
 
-function void dut_pout_txn::read(virtual dut_if dut_vif);
-    content_valid = dut_vif.probe_valid;
+function void dut_pout_txn::read(dutb_if_proxy_base dutb_if);
+    // content_valid = dut_vif.probe_valid;
 
-    if (dut_vif.image_depth_valid)
-        begin
-            for (int i=0; i<256; i++)
-                begin
-                    stuff.push_back(dut_vif.image_depth[i]);
-                end
-        end
+    // if (dut_vif.image_depth_valid)
+    //     begin
+    //         for (int i=0; i<256; i++)
+    //             begin
+    //                 stuff.push_back(dut_vif.image_depth[i]);
+    //             end
+    //     end
 
-    if (dut_vif.histo_valid)
-        begin
-            for (int i=0; i<p_histo_size; i++)
-                begin
-                    stuff.push_back(dut_vif.histo[i]);
-                end
-            `uvm_info("dut_pout_txn", "push histo", UVM_HIGH)
-        end
+    // if (dut_vif.histo_valid)
+    //     begin
+    //         for (int i=0; i<p_histo_size; i++)
+    //             begin
+    //                 stuff.push_back(dut_vif.histo[i]);
+    //             end
+    //         `uvm_info("dut_pout_txn", "push histo", UVM_HIGH)
+    //     end
 
 endfunction
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -1,11 +1,21 @@
 module ttb;
-    import uvm_pkg::*;
     `include "uvm_macros.svh"
+    import uvm_pkg::*;
+    
+    import dutb_param_pkg::*;
 
-    import dut_tb_param_pkg::*;
+    import dut_param_pkg::*;
     import test_pkg::*;
 
     bit clk, rstn;
+
+    clocker clocker(.clk(clk), .rstn(rstn));
+
+    dutb_if dutb_if_h
+        (
+            .clk    (clk),
+            .rstn   (rstn)
+        );
 
     dut_if dut_if_h
         (
@@ -19,34 +29,19 @@ module ttb;
         );
 
     initial
-        begin : l_clk
-            clk = 1'b0;
-            forever
-                #(p_clk_period/2) clk = ~clk;
-        end
-
-
-    initial
-        begin : l_rstn
-            rstn = 1'b0;
-            #p_rstn_period rstn = 1'b1;
-        end
-
-    initial
         begin : l_main
             $timeformat(-9, 0, "ns", 8);
-            uvm_config_db #(virtual dut_if)::set(null, "uvm_test_top", "dut_if", dut_if_h);
+            uvm_config_db #(virtual dutb_if)::set(null, "uvm_test_top", "dutb_vif", dutb_if_h);
+            uvm_config_db #(virtual dut_if)::set(null, "uvm_test_top", "dut_vif", dut_if_h);
             run_test();
         end
-
-
-    initial
-        begin : l_finish
-            #100000
-            $finish();
-        end
-
-
-
 endmodule
 
+// Module to provide clock and rst signals
+module clocker (output bit clk, rstn);
+    import dutb_param_pkg::*;
+    initial     clk                     = 1'b0;
+    initial     rstn                    = 1'b0;
+    initial     #P_RSTN_LENGTH rstn     = 1'b1;
+    always      #(P_CLK_PERIOD/2) clk   = ~clk;
+endmodule

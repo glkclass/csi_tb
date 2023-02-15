@@ -1,6 +1,8 @@
 package dut_param_pkg;
     parameter
     // dut param
+    P_CIN_DATA_WIDTH            =   4,
+
     p_depth_bit                 =   8,  // input pixel bit width
     p_width_bit                 =   6,  // 2**p_width_bit - line size
     p_height_bit                =   6,  // 2**p_height_bit - column size
