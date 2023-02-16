@@ -1,5 +1,5 @@
 // - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-class dut_test extends dutb_test_base #(cin_txn);
+class dut_test extends dutb_test_base #(.T_DIN_TXN(cin_txn));
     `uvm_component_utils(dut_test)
     
     virtual dut_if              dut_vif;

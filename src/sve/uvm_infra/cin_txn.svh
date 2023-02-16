@@ -37,13 +37,13 @@ task cin_txn::write(input dutb_if_proxy_base dutb_if);
         `uvm_fatal("TXNTPYERR", "Txn cast was failed")
 
     @(posedge dut_if.dut_vif.clk)
-    #0
+    #1
     dut_if.dut_vif.data = data;
     dut_if.dut_vif.valid = 1'b1;
     `uvm_debug("TXNWRTN", convert2string())
 
     @(posedge dut_if.dut_vif.clk)
-    #0
+    #1
     dut_if.dut_vif.data = 4'hX;
     dut_if.dut_vif.valid = 1'b0;
 endtask
@@ -52,9 +52,8 @@ endtask
 task cin_txn::read(input dutb_if_proxy_base dutb_if);
     // `uvm_debug("TXNTYP", $sformatf("%s", get_type_name()))
 
-    if(!$cast(dut_if, dutb_if))
+    if (!$cast(dut_if, dutb_if))
         `uvm_fatal("TXNTPYERR", "Txn cast was failed")
-    
     do
         begin
             @(posedge dut_if.dut_vif.clk)

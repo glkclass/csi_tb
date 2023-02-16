@@ -7,9 +7,10 @@ package test_pkg;
     import dutb_pkg::*;
     
     import dut_param_pkg::*;
-    import dut_if_proxy_pkg::*;
-    import agent_pkg::*;
-    import sequence_pkg::*;
+    
+    `include "dut_if_proxy.svh"
+    `include "cin_txn.svh"
+    `include "cin_test_seq.svh"
     `include "dut_test.svh"
 endpackage
 

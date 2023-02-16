@@ -5,28 +5,13 @@ $DUTB_HOME/src/sve/dutb_param_pkg.sv
 $DUTB_HOME/src/sve/dutb_if.sv
 $DUTB_HOME/src/sve/dutb/dutb_pkg.sv
 
-# $DUTB_HOME/src/sve/dutb_util/dutb_util_pkg.sv
-# $DUTB_HOME/src/sve/dutb_if_proxy/dutb_if_proxy_pkg.sv
-# $DUTB_HOME/src/sve/dutb_seq/dutb_sequence_pkg.sv
-# $DUTB_HOME/src/sve/dutb_agent/dutb_agent_pkg.sv
-# $DUTB_HOME/src/sve/dutb_scb/dutb_scb_pkg.sv
-# $DUTB_HOME/src/sve/dutb_env/dutb_env_pkg.sv
-# $DUTB_HOME/src/sve/dutb_test/dutb_test_pkg.sv
-
-
 #CSI_TB
 ../src/sve/dut_param_pkg.sv
 ../src/sve/dut_if.sv
-../src/sve/SRAM.v
 ../src/sve/dut_wrp.sv
-#
-../src/sve/dut_if_proxy/dut_if_proxy_pkg.sv
-../src/sve/seq/sequence_pkg.sv
-../src/sve/agent/agent_pkg.sv
-../src/sve/scb/scb_pkg.sv
-../src/sve/env/env_pkg.sv
-../src/sve/test/test_pkg.sv
 
+#UVM infra
+../src/sve/uvm_infra/csi_tb_pkg.sv
 
 ../src/sve/ttb.sv
 

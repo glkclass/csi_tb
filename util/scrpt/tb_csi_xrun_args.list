@@ -1,11 +1,11 @@
-+define+YES_PROBE+YES_WAVE
++define+YES_PROBE+NO_WAVE
 
 #+incdir+$UVM_HOME/src
 #+incdir+$UVM_HOME
 
 +incdir+$DUTB_HOME/src/sve/dutb_util+$DUTB_HOME/src/sve/dutb_if_proxy+$DUTB_HOME/src/sve/dutb_seq+$DUTB_HOME/src/sve/dutb_agent+$DUTB_HOME/src/sve/dutb_env+$DUTB_HOME/src/sve/dutb_scb+$DUTB_HOME/src/sve/dutb_test
 
-+incdir+../src/sve/dut_if_proxy+../src/sve/seq+../src/sve/agent+../src/sve/env+../src/sve/scb+../src/sve/test
++incdir+../src/sve/uvm_infra
 
 
 -uvmhome CDNS-1.2
@@ -21,6 +21,5 @@
 
 -disable_sem2009
 -timescale 1ns/1ps
--access
-+rwc
+# -access +rwc
 

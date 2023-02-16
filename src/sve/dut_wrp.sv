@@ -7,18 +7,18 @@ module dut_wrp
 
 
     // DEPTH SRAM if
-    logic                                                       image_sram_wen;
-    logic           [p_depth_sram_a_bit-1 : 0]                  image_sram_a;
-    logic           [p_depth_sram_d_bit-1 : 0]                  image_sram_d;
-    logic           [p_depth_sram_d_bit-1 : 0]                  image_sram_q;
+    // logic                                                       image_sram_wen;
+    // logic           [p_depth_sram_a_bit-1 : 0]                  image_sram_a;
+    // logic           [p_depth_sram_d_bit-1 : 0]                  image_sram_d;
+    // logic           [p_depth_sram_d_bit-1 : 0]                  image_sram_q;
 
-    // HISTO SRAM if
-    logic                                                       histo_sram_wen;
-    logic           [p_histo_sram_a_bit-1 : 0]                  histo_sram_a;
-    logic           [p_histo_sram_d_bit-1 : 0]                  histo_sram_d;
-    logic           [p_histo_sram_d_bit-1 : 0]                  histo_sram_q;
+    // // HISTO SRAM if
+    // logic                                                       histo_sram_wen;
+    // logic           [p_histo_sram_a_bit-1 : 0]                  histo_sram_a;
+    // logic           [p_histo_sram_d_bit-1 : 0]                  histo_sram_d;
+    // logic           [p_histo_sram_d_bit-1 : 0]                  histo_sram_q;
 
-    logic           [p_th_num*p_depth_bit-1 : 0]                histo_th;
+    // logic           [p_th_num*p_depth_bit-1 : 0]                histo_th;
 
     // DEPTHHISTOGRAM
     //     #(
@@ -53,35 +53,35 @@ module dut_wrp
     //         .i_DEPTH_SRAM_Q                     ( image_sram_q )
     //     );
 
-    SRAM
-        #(
-            .p_addr_bit             ( p_depth_sram_a_bit ),
-            .p_data_bit             ( p_depth_sram_d_bit )
-        )
-    DEPTH
-        (
-            .CLK                    ( _if.clk ),
-            .CEN                    ( 1'b0 ),  //always enabled
-            .WEN                    ( image_sram_wen ),
-            .A                      ( image_sram_a ),
-            .D                      ( image_sram_d ),
-            .Q                      ( image_sram_q)
-        );
+    // SRAM
+    //     #(
+    //         .p_addr_bit             ( p_depth_sram_a_bit ),
+    //         .p_data_bit             ( p_depth_sram_d_bit )
+    //     )
+    // DEPTH
+    //     (
+    //         .CLK                    ( _if.clk ),
+    //         .CEN                    ( 1'b0 ),  //always enabled
+    //         .WEN                    ( image_sram_wen ),
+    //         .A                      ( image_sram_a ),
+    //         .D                      ( image_sram_d ),
+    //         .Q                      ( image_sram_q)
+    //     );
 
-    SRAM
-        #(
-            .p_addr_bit             ( p_histo_sram_a_bit ),
-            .p_data_bit             ( p_histo_sram_d_bit )
-        )
-    HISTO
-        (
-            .CLK                    ( _if.clk ),
-            .CEN                    ( 1'b0 ),  //always enabled
-            .WEN                    ( histo_sram_wen ),
-            .A                      ( histo_sram_a ),
-            .D                      ( histo_sram_d ),
-            .Q                      ( histo_sram_q )
-        );
+    // SRAM
+    //     #(
+    //         .p_addr_bit             ( p_histo_sram_a_bit ),
+    //         .p_data_bit             ( p_histo_sram_d_bit )
+    //     )
+    // HISTO
+    //     (
+    //         .CLK                    ( _if.clk ),
+    //         .CEN                    ( 1'b0 ),  //always enabled
+    //         .WEN                    ( histo_sram_wen ),
+    //         .A                      ( histo_sram_a ),
+    //         .D                      ( histo_sram_d ),
+    //         .Q                      ( histo_sram_q )
+    //     );
 
 
 
@@ -93,27 +93,27 @@ module dut_wrp
 
     // assign _if.histo_valid              =   DUT.w_lpf_post_finish | histo_valid;
 
-genvar ii;
-generate
-    for (ii=0; ii<p_depth_size; ii=ii+1)
-        begin
-            assign  _if.image_depth[ii]  =   DEPTH.r_MEM[ii];
-        end
+// genvar ii;
+// generate
+//     for (ii=0; ii<p_depth_size; ii=ii+1)
+//         begin
+//             assign  _if.image_depth[ii]  =   DEPTH.r_MEM[ii];
+//         end
 
-    for (ii=0; ii<p_histo_size; ii=ii+1)
-        begin
-            assign  _if.histo[ii]  =   HISTO.r_MEM[ii];
-        end
+//     for (ii=0; ii<p_histo_size; ii=ii+1)
+//         begin
+//             assign  _if.histo[ii]  =   HISTO.r_MEM[ii];
+//         end
 
-endgenerate
+// endgenerate
 
 
-generate
-    for (ii=0; ii<p_th_num; ii=ii+1)
-        begin
-            assign  _if.histo_th[ii]  =   histo_th[(ii+1)*p_depth_bit-1 : ii*p_depth_bit];
-        end
-endgenerate
+// generate
+//     for (ii=0; ii<p_th_num; ii=ii+1)
+//         begin
+//             assign  _if.histo_th[ii]  =   histo_th[(ii+1)*p_depth_bit-1 : ii*p_depth_bit];
+//         end
+// endgenerate
 
 
 
