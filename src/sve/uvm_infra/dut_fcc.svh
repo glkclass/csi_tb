@@ -1,4 +1,4 @@
-// - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 class dut_fcc  #(type   T_DIN_TXN   = dutb_txn_base,
                         T_DOUT_TXN  = dutb_txn_base,
                         T_POUT_TXN  = dutb_txn_base)
@@ -27,10 +27,10 @@ extends dut_fcc_base #(T_DIN_TXN, T_DOUT_TXN, T_POUT_TXN);
     extern virtual  function void sample_coverage();
     extern virtual  function void check_coverage_results();
 endclass
-// - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
-// - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function dut_fcc::new(string name = "dut_fcc", uvm_component parent=null);
     super.new(name, parent);
     cover_din_txn = new("cover_din_txn");
@@ -58,4 +58,4 @@ function void dut_fcc::check_coverage_results();
             dut_handler_h.stop_test("FCC target achieved");  // finish current test
         end
 endfunction
-// - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

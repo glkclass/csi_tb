@@ -1,4 +1,4 @@
-// input dut control transaction - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 class cin_txn extends dutb_txn_base;
     `uvm_object_utils(cin_txn)
 
@@ -13,10 +13,10 @@ class cin_txn extends dutb_txn_base;
     extern virtual task                         write (input dutb_if_proxy_base dutb_if);   // write 'txn content' to interface
     extern virtual task                         read (input dutb_if_proxy_base dutb_if);    // read 'txn content' from interface
 endclass
-// - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
-// - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 function cin_txn::new(string name = "cin_txn");
     super.new(name);
 endfunction
@@ -54,6 +54,8 @@ task cin_txn::read(input dutb_if_proxy_base dutb_if);
 
     if (!$cast(dut_if, dutb_if))
         `uvm_fatal("TXNTPYERR", "Txn cast was failed")
+    
+    wait(dut_if.dut_vif.rstn);  // wait for reset off
     do
         begin
             @(posedge dut_if.dut_vif.clk)
@@ -63,4 +65,4 @@ task cin_txn::read(input dutb_if_proxy_base dutb_if);
     `uvm_debug("TXNREAD", convert2string())
     // print();
 endtask
-//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -1,5 +1,5 @@
 `timescale 1ns/1ns
-package test_pkg;
+package csi_tb_pkg;
     `include "uvm_macros.svh"
     import uvm_pkg::*;
 
@@ -8,6 +8,7 @@ package test_pkg;
     
     import dut_param_pkg::*;
     
+    // UVM infra
     `include "dut_if_proxy.svh"
     `include "cin_txn.svh"
     `include "cin_test_seq.svh"
