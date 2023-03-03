@@ -1,4 +1,4 @@
-+define+NO_WAVE+NO_PROBE
++define+YES_WAVE+NO_PROBE
 
 #+incdir+$UVM_HOME/src
 #+incdir+$UVM_HOME
@@ -19,6 +19,6 @@
 -top ttb
 
 -disable_sem2009
--timescale 1ns/1ps
-# -access +rwc
+-timescale 1ps/1ps
+-access +rwc
 

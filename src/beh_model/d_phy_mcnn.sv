@@ -9,9 +9,9 @@ Description.
     CIL-MCNN type. Master Clock Lane module with ULPS and HS Tx Idle support
 ***************************************************************************/
 
-`timescale 1ns/1ps
+import csi_param_pkg::*;
+import csi_typedef_pkg::*;
 
-import dutb_macro_pkg::*;
 
 module d_phy_mcnn (
     input hs_clk,

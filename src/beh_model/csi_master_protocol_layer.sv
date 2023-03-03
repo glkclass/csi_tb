@@ -1,8 +1,8 @@
 /***************************************************************************
 Project        :  CSI
-Module         :  csi2_tx_protocol_layer
-Author         :  Anton Voloshchuk
+Author         :  glkclass@gmail.com
 Creation Date  :  June 2022
+Module         :  csi_master_protocol_layer
 
 Description.
     MIPI CSI-2 Protocol Layer.
@@ -12,8 +12,6 @@ Description.
     Pack every four 14-bit pixels to 7 bytes according to CSI-2 spec.
     Send every Frame as follows: Sync Start short packet + Payload long packet (all frame pixels) + Sync End short packet
 ***************************************************************************/
-
-`timescale 1ns/1ps
 
 import csi_param_pkg::*;
 

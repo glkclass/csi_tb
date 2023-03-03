@@ -9,7 +9,9 @@ Description.
     CIL-MFEN type. Master Data Lane module with Forward High-speed only and Forward Escape Mode only.
 ***************************************************************************/
 
-`timescale 1ns/1ps
+import csi_param_pkg::*;
+import csi_typedef_pkg::*;
+
 
 module d_phy_mfen (
     input hs_clk,
@@ -98,9 +100,9 @@ module d_phy_mfen (
                 // Initialization stage
                 Init:
                     begin
-                        ppi.Stopstate          =   FALSE;
-                        ppi.TxReadyHS         =   FALSE;
-                        ppi.UlpsActiveNot     =   HIGH;
+                        ppi.Stopstate           =   FALSE;
+                        ppi.TxReadyHS           =   FALSE;
+                        ppi.UlpsActiveNot       =   HIGH;
                         line = LP11;
 
                         fork

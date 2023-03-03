@@ -8,7 +8,6 @@ Description.
     Contain TB/DUT interfaces declaration for CSI project
 ***************************************************************************/
 
-`timescale 1ns/1ps
 
 import dutb_macro_pkg::*;
 

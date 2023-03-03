@@ -8,7 +8,7 @@ Description.
     Contain all TB params for CSI project in single place.
 ***************************************************************************/
 
-`timescale 1ns/1ps
+// `timescale 1ps/1ps
 
 package csi_param_pkg;
     parameter
@@ -39,12 +39,12 @@ package csi_param_pkg;
     FRAME_HEADER_WIDTH                  =   32,
 
     CSI_FIFO_DATA_WIDTH                 =   8,   // Width of FIFO word
-    CSI_FIFO_MAX_SIZE                   =   2*IMAGE_LINES*IMAGE_LINE_PIXELS,
+    CSI_FIFO_MAX_SIZE                   =   2*IMAGE_LINES*IMAGE_LINE_PIXELS;
 
 
     // *********************************************************************
     // timing
-
+    parameter time
     // HS clock = 2.225 GHz, DDR data rate = 4.5 Gbps
     T_HS_CLK_UI                 =   222ps,
 
@@ -101,10 +101,11 @@ package csi_param_pkg;
     T_WAKEUP                    =   1us,
 
     // max simulation time after which sim will be terminated (to resolve 'freeze' issue).
-    T_MAX_SIM_DURATION          =   10us,
+    T_MAX_SIM_DURATION          =   10us;
 
     // *********************************************************************
     // arch
+    parameter
     // Number of D-PHY Data Lanes
     N_DATA_LANES                =   4,
 

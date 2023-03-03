@@ -8,10 +8,9 @@ Description.
     MIPI D-PHY v.2.5 PHY Adapter Layer that ties all Lanes( Data and Clock) and the PHY Protocol Interface together.
 ***************************************************************************/
 
-`timescale 1ns/1ps
-
 import csi_param_pkg::*;
 import csi_typedef_pkg::*;
+
 
 module d_phy_master_adapter_layer (
     input logic hs_clk,

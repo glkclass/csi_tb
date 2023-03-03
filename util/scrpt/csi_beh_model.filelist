@@ -2,8 +2,8 @@
 ../src/beh_model/csi_param_pkg.sv
 ../src/beh_model/csi_typedef_pkg.sv
 ../src/beh_model/csi_if.sv
-../src/beh_model/csi_master_protocol_layer.sv
 ../src/beh_model/d_phy_clk_gen.sv
+../src/beh_model/csi_master_protocol_layer.sv
 ../src/beh_model/d_phy_master_adapter_layer.sv
 ../src/beh_model/d_phy_mcnn.sv
 ../src/beh_model/d_phy_mfen.sv

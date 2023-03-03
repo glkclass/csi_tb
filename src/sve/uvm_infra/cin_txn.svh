@@ -1,3 +1,4 @@
+
 // ****************************************************************************************************************************
 class cin_txn extends dutb_txn_base;
     `uvm_object_utils(cin_txn)
@@ -37,13 +38,13 @@ task cin_txn::drive(input dutb_if_proxy_base dutb_if);
         `uvm_fatal("TXNTPYERR", "Txn cast was failed")
 
     @(posedge dut_if.dut_vif.clk)
-    #1
+    #0
     dut_if.dut_vif.data = data;
     dut_if.dut_vif.valid = 1'b1;
     `uvm_debug("TXNWRTN", convert2string())
 
     @(posedge dut_if.dut_vif.clk)
-    #1
+    #0
     dut_if.dut_vif.data = 4'hX;
     dut_if.dut_vif.valid = 1'b0;
 endtask
