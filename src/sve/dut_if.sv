@@ -1,8 +1,8 @@
 interface dut_if
 (
-    input clk, rstn
+    input clk, rst_n
 );
-    import dut_param_pkg::*;
+    import dut_tb_param_pkg::*;
 
     // DUT interface
     logic           [P_CIN_DATA_WIDTH-1 : 0]                data;

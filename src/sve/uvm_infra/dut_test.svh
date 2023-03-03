@@ -1,4 +1,4 @@
-// - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// ****************************************************************************************************************************
 class dut_test extends dutb_test_base #(.T_DIN_TXN(cin_txn));
     `uvm_component_utils(dut_test)
     
@@ -6,16 +6,17 @@ class dut_test extends dutb_test_base #(.T_DIN_TXN(cin_txn));
 
     extern function             new(string name = "dut_test", uvm_component parent = null);
     extern function void        build_phase(uvm_phase phase);
+    extern function void        start_of_simulation_phase(uvm_phase phase);
     extern task                 run_phase(uvm_phase phase);
 endclass
 
 function dut_test::new(string name = "dut_test", uvm_component parent = null);
     super.new(name, parent);
 endfunction
-// - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// ****************************************************************************************************************************
 
 
-// - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// ****************************************************************************************************************************
 function void dut_test::build_phase(uvm_phase phase);
     uvm_factory factory = uvm_factory::get();
 
@@ -32,20 +33,24 @@ function void dut_test::build_phase(uvm_phase phase);
 endfunction
 
 
+function void dut_test::start_of_simulation_phase(uvm_phase phase);
+    // super.start_of_simulation_phase(phase);
+endfunction
+
+
 task dut_test::run_phase(uvm_phase phase);
     cin_test_seq seq_h;
 
     seq_h = cin_test_seq::type_id::create("seq_h");
     // dut_handler_h.recorder_db_mode = WRITE;  // enable store failed txn to 'recorder_db' file
     phase.raise_objection(this, "dut_test started");
-    @ (posedge dut_vif.rstn);
-    // uvm_top.print_topology();
+    @ (posedge dut_vif.rst_n);
+    // 
 
     fork
         seq_h.start(env_h.din_agent_h.sqncr_h);
         dutb_handler_h.wait_for_stop_test();
-        timeout_sim(100, 20);
     join_any
     phase.drop_objection(this, "dut_test finished");
 endtask
-// - - - - - - - - - - -  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+// ****************************************************************************************************************************

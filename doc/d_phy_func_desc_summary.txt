@@ -1,0 +1,107 @@
+1. The Link includes a High-Speed signaling mode for fast-data traffic and a Low-Power signaling mode for
+control purposes. Optionally, a Low-Power Escape Mode can be used for low speed asynchronous data communication.
+
+2. ...this specification is primarily intended to define a solution for a data rate range of
+80 to 1500 Mbps per Lane without deskew calibration, up to 2500 Mbps with deskew calibration, and up to
+4500 Mbps with equalization and Spread Spectrum
+Clocking.
+
+3. ...if a Lane Module contains a HS-TX it shall also contain a LP-TX. A similar constraint holds for HS-RX and LP-RX.
+An LP-TX may support an optional Low Voltage Low Power (LVLP) operation, in which the maximum voltage is limited
+in comparison to the normal Low-Power mode
+
+4. ...if a Lane Module containing a LP-RX is powered, that LP-RX shall always be active and continuously
+monitor Line levels unless the Lane is configured to work in ALP mode.
+...
+A LP-TX shall only be enabled when driving Low-Power states.
+
+5. The activities of LP-TX, HS-TX, and HS-RX in a single Lane Module are mutually exclusive except for
+some short crossover periods.
+
+6. A complete Link contains, beside Lane Modules, a PHY Adapter Layer that ties all Lanes, the Clock
+Multiplier Unit, and the PHY Protocol Interface together.
+
+7. All Lanes shall include Escape Mode support, and may include ALP mode support, for ULPS and Triggers
+in the Forward Direction. Other Escape Mode and ALP mode functionality is optional; all possible Escape
+Mode and ALP mode features are described in Section 6.
+
+8. Data transmission can be with 8-bit raw data (default) or using 8b9b encoded symbol (see Annex C)
+
+9. Note that Forward ‘Escape’ (ULPS) entry for Clock Lanes is different than
+Escape Mode entry for Data Lanes.
+
+10. For a Unidirectional Data Lane the Master Module shall contain at least a HS-TX, a LP-TX, and a CIL-
+MFXN function. The Slave side shall contain at least a HS-RX, a LP-RX and a CIL-SFXN
+
+11. For the Clock Lane, only a limited set of Line states is used. However, for Clock Transmission and Low-
+Power mode the same TX and RX functions are required as for Unidirectional Data Lanes. A Clock Lane
+Module for the Master Side therefore contains a HS-TX, LP-TX, and a CIL-MCNN function, while the
+Slave Side Module includes a HS-RX, a LP-RX and a CIL-SCNN function.
+
+The High-Speed DDR Clock is transmitted in quadrature phase with Data signals instead of in-phase.
+
+In addition, the Clock Lane Escape Mode entry is different than that used for Data Lanes. Furthermore,
+since a Clock Lane only supports ULPS, an Escape Mode entry code is not required.
+
+12. During High-Speed, or Low-Power, transmission, the Link transports payload data provided by the protocol
+layer to the other side of the Link.
+
+The minimum payload data unit shall be one byte. Data provided to a TX and taken from a RX on any Lane
+shall be an integer number of bytes. The PHY assumes no particular meaning, value or order of incoming and outgoing data.
+Line coding is not required by this specification. However, if Line coding is used, it shall be implemented according to Annex C.
+
+13. Data transmission takes place on protocol request.
+
+The signaling concept, and therefore the
+PHY protocol handshake, does not allow data throttling. Any data buffering for this purpose shall be inside
+the protocol layer.
+
+14. The primary transmission scheme uses a combination of HS differential signaling and LP mode single-ended signaling.
+
+15. During normal operation either a HS-TX or a LP-TX is driving a Lane.
+
+16. The Stop state has a very exclusive and central function. If the Line levels show a Stop state for the
+minimum required time, the PHY state machine shall return to the Stop state regardless of the previous state.
+
+All LP state periods shall be at least T LPX (50ns) in duration.
+
+17. 6 Global operation
+
+18. The Preamble Sequence shall be supported by transmitters and receivers operated above 2.5 Gbps.
+
+19. Using LPDT, a Low-Power (Bit) Clock signal (f MOMENTARY < 20MHz) provided to the transmit side is used to transmit data.
+
+
+20.The maximum data rate in Low-Power mode is 10 Mbps.
+
+21. In addition, the Clock Lane Escape Mode entry is different than that used for Data Lanes. Furthermore,
+since a Clock Lane only supports ULPS, an Escape Mode entry code is not required.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
