@@ -1,14 +1,13 @@
-/***************************************************************************
-Project        :  CSI
-Module         :  d_phy_mfen
-Author         :  Anton Voloshchuk
-Creation Date  :  June 2022
+/******************************************************************************************************************************
+    Project         :   CSI
+    Creation Date   :   June 2022
+    Module          :   d_phy_mfen
+    Description     :   MIPI D-PHY v.2.5 Master Data Lane module behavioral model.
+                        CIL-MFEN type. Master Data Lane module with Forward High-speed only and Forward Escape Mode only.
+******************************************************************************************************************************/
 
-Description.
-    MIPI D-PHY v.2.5 Master Data Lane module behavioral model.
-    CIL-MFEN type. Master Data Lane module with Forward High-speed only and Forward Escape Mode only.
-***************************************************************************/
 
+// ****************************************************************************************************************************
 import csi_param_pkg::*;
 import csi_typedef_pkg::*;
 
@@ -366,5 +365,4 @@ module d_phy_mfen (
         state = next_state;
 
 endmodule
-
-
+// ****************************************************************************************************************************

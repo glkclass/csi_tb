@@ -1,14 +1,13 @@
-/***************************************************************************
-Project        :  CSI
-Module         :  d_phy_mcnn
-Author         :  Anton Voloshchuk
-Creation Date  :  June 2022
+/******************************************************************************************************************************
+    Project         :  CSI
+    Creation Date   :  June 2022
+    Module          :  d_phy_mcnn
+    Description     :   MIPI D-PHY v.2.5 Master Clock Lane module behavioral model.
+                        CIL-MCNN type. Master Clock Lane module with ULPS and HS Tx Idle support
+******************************************************************************************************************************/
 
-Description.
-    MIPI D-PHY v.2.5 Master Clock Lane module behavioral model.
-    CIL-MCNN type. Master Clock Lane module with ULPS and HS Tx Idle support
-***************************************************************************/
 
+// ****************************************************************************************************************************
 import csi_param_pkg::*;
 import csi_typedef_pkg::*;
 
@@ -341,3 +340,4 @@ module d_phy_mcnn (
         state = next_state;
 
 endmodule
+// ****************************************************************************************************************************

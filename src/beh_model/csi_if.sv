@@ -1,21 +1,18 @@
-/***************************************************************************
-Project        :  CSI
-Package        :  csi_tb_if
-Author         :  Anton Voloshchuk
-Creation Date  :  June 2022
-
-Description.
-    Contain TB/DUT interfaces declaration for CSI project
-***************************************************************************/
+/******************************************************************************************************************************
+    Project         :   CSI
+    Creation Date   :   June 2022
+    Interface       :   d_phy_full_ppi_if, d_phy_appi_if, ci_if, csi_fifo_if, d_phy_adapter_line_if
+    Description     :   Contain TB/DUT interfaces declaration for CSI project
+******************************************************************************************************************************/
 
 
+// ****************************************************************************************************************************
 import dutb_macro_pkg::*;
 
 import csi_param_pkg::*;
 import csi_typedef_pkg::*;
 
 
-     
 // Full PPI interface to D-PHY CIL-XXXX Lane
 interface d_phy_full_ppi_if;
     logic                                   TxWordClkHS;
@@ -251,3 +248,4 @@ interface d_phy_adapter_line_if;
     modport master (output clk, data);
     modport slave (input clk, data);
 endinterface
+// ****************************************************************************************************************************

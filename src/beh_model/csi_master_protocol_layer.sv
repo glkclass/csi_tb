@@ -1,18 +1,19 @@
-/***************************************************************************
-Project        :  CSI
-Author         :  glkclass@gmail.com
-Creation Date  :  June 2022
-Module         :  csi_master_protocol_layer
+/******************************************************************************************************************************
+    Project         :   CSI
+    Creation Date   :   June 2022
+    Module          :   csi_master_protocol_layer
 
-Description.
-    MIPI CSI-2 Protocol Layer.
-    - Recieve image from Camera (Vsync, Hsync, raw 14-bit pixels),
-    - pack into CSI-2 packets,
-    - push to fifo to be transmitted using D-PHY.
-    Pack every four 14-bit pixels to 7 bytes according to CSI-2 spec.
-    Send every Frame as follows: Sync Start short packet + Payload long packet (all frame pixels) + Sync End short packet
-***************************************************************************/
+    Description     :
+                        MIPI CSI-2 Protocol Layer.
+                        - Recieve image from Camera (Vsync, Hsync, raw 14-bit pixels),
+                        - pack into CSI-2 packets,
+                        - push to fifo to be transmitted using D-PHY.
+                        Pack every four 14-bit pixels to 7 bytes according to CSI-2 spec.
+                        Send every Frame as follows: Sync Start short packet + Payload long packet (all frame pixels) + Sync End short packet
+******************************************************************************************************************************/
 
+
+// ****************************************************************************************************************************
 import csi_param_pkg::*;
 
 module csi_master_protocol_layer (
@@ -97,6 +98,5 @@ module csi_master_protocol_layer (
             push_vector(frame_header, 4);
             // log_debug($sformatf("Push header: 0x%8H, FIFO size = %0d", frame_header, csi_fifo.size()), TRUE);
         end
-
-
 endmodule
+// ****************************************************************************************************************************

@@ -1,13 +1,12 @@
-/***************************************************************************
-Project        :  CSI
-Module         :  d_phy_clk_gen
-Author         :  Anton Voloshchuk
-Creation Date  :  June 2022
+/******************************************************************************************************************************
+    Project         :   CSI
+    Creation Date   :   June 2022
+    Module          :   d_phy_clk_gen
+    Description     :   Generate 'Esc Clock' and 'Tx Word HS Clock' for MIPI D-PHY v.2.5 Master Clock/Data Lane module behavioral models.
+******************************************************************************************************************************/
 
-Description.
-    Generate 'Esc Clock' and 'Tx Word HS Clock' for MIPI D-PHY v.2.5 Master Clock/Data Lane module behavioral models.
-***************************************************************************/
 
+// ****************************************************************************************************************************
 import csi_param_pkg::*;
 
 
@@ -42,3 +41,4 @@ module d_phy_clk_gen (
 
 
 endmodule
+// ****************************************************************************************************************************

@@ -1,13 +1,12 @@
-/***************************************************************************
-Project        :  CSI
-Module         :  d_phy_adapter_layer
-Author         :  Anton Voloshchuk
-Creation Date  :  June 2022
+/******************************************************************************************************************************
+    Project         :   CSI
+    Creation Date   :   June 2022
+    Module          :   d_phy_adapter_layer
+    Description     :   MIPI D-PHY v.2.5 PHY Adapter Layer that ties all Lanes( Data and Clock) and the PHY Protocol Interface together.
+******************************************************************************************************************************/
 
-Description.
-    MIPI D-PHY v.2.5 PHY Adapter Layer that ties all Lanes( Data and Clock) and the PHY Protocol Interface together.
-***************************************************************************/
 
+// ****************************************************************************************************************************
 import csi_param_pkg::*;
 import csi_typedef_pkg::*;
 
@@ -168,9 +167,5 @@ generate
         end
 endgenerate
 
-
-
-
-
-
 endmodule
+// ****************************************************************************************************************************
