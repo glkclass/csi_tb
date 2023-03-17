@@ -1,2 +1,2 @@
 # csi_tb
-CSI TB
+MIPI Camera Serial Interface. 'CSI + D-PHY' behavioral model implementation and TB.

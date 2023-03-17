@@ -1,6 +1,6 @@
 /******************************************************************************************************************************
     Project         :   CSI
-    Creation Date   :   Dec 2022
+    Creation Date   :   June 2022
     Package         :   csi_param_pkg
     Description     :   Contain CSI params.
 ******************************************************************************************************************************/
@@ -21,8 +21,8 @@ package csi_param_pkg;
     X                                   =   1'bx,
 
     // image sensor
-    IMAGE_LINES                         =   16,  // number of lines per frame
-    IMAGE_LINE_PIXELS                   =   64,  // number of pixels per line
+    IMAGE_LINES                         =   4,  // number of lines per frame
+    IMAGE_LINE_PIXELS                   =   16,  // number of pixels per line
     IMAGE_LINE_GAP                      =   8,  // gap in clk between two lines
     IMAGE_PIXEL_WIDTH                   =   14,  // image pixel width
     IMAGE_PIXEL_MAX_VALUE               =   (2**IMAGE_PIXEL_WIDTH) - 1,  // max pixel value 2^14 -1
@@ -39,7 +39,7 @@ package csi_param_pkg;
     FRAME_HEADER_WIDTH                  =   32,
 
     CSI_FIFO_DATA_WIDTH                 =   8,   // Width of FIFO word
-    CSI_FIFO_MAX_SIZE                   =   2*IMAGE_LINES*IMAGE_LINE_PIXELS;
+    CSI_FIFO_MAX_SIZE                   =   10*IMAGE_LINES*IMAGE_LINE_PIXELS;
 
 
     // *********************************************************************

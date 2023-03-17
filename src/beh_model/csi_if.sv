@@ -7,6 +7,9 @@
 
 
 // ****************************************************************************************************************************
+`include "uvm_macros.svh"
+import uvm_pkg::*;
+
 import dutb_macro_pkg::*;
 
 import csi_param_pkg::*;
@@ -158,32 +161,30 @@ endinterface
 
 
 // Camera serial interface
-interface ci_if;
+interface ci_if (input Clk, Rst_n);
     logic
-        Enable,
+        Enable = LOW,
         VSync = 1'b0,
-        HSync = 1'b0,
-        Clk = 1'b0;
+        HSync = 1'b0;
     t_pixel
         Data = {IMAGE_PIXEL_WIDTH{1'bx}};
 
+    // Camera -> CSI protocol
     modport tx (
-        input Enable,
-        output VSync, HSync, Clk, Data);
+        input   Clk, Rst_n,
+        output  VSync, HSync, Data);
 
+    //  CSI protocol <- Camera
     modport rx (
-        input VSync, HSync, Clk, Data,
-        output Enable);
+        input Clk, Rst_n, Enable, VSync, HSync, Data);
 endinterface
 
 // Fifo interface
-interface csi_fifo_if;
+interface csi_fifo_if(input ClkRx, ClkTx);
     logic
-        ClkRx,
         ValidRx,
         FullRx = FALSE,
 
-        ClkTx,
         ReadyTx,
         EmptyTx = TRUE;
 

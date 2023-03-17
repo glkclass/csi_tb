@@ -1,0 +1,10 @@
+include default
+
+params IDLENG MAXLEN STYVAL {off}
+
+params POIASG {ignore_poiasg="up_counter:down_counter"}
+params LRGOPR {max_op_size=12}
+
+params TPOUNR DALIAS FFASRT CTLCHR {off}
+params HAL {fsm_state_coding_style="none"}
+

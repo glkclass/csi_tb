@@ -7,6 +7,7 @@
 +incdir+../src/sve/uvm_infra
 
 
+-cov_cgsample
 -uvmhome CDNS-1.2
 #-uvmhome $UVM_HOME
 -uvmnocdnsextra

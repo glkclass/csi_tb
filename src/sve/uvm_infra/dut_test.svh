@@ -8,7 +8,7 @@
 
 
 // ****************************************************************************************************************************
-class dut_test extends dutb_test_base #(.T_DIN_TXN(cin_txn));
+class dut_test extends dutb_test_base #(.T_DIN_TXN(csi_image_txn), .T_DOUT_TXN(csi_packet_txn));
     `uvm_component_utils(dut_test)
     
     virtual dut_if              dut_vif;
@@ -38,6 +38,8 @@ function void dut_test::build_phase(uvm_phase phase);
     else
         uvm_config_db #(virtual dut_if)::set(this, "dutb_if_h", "dut_vif", dut_vif);
 
+    uvm_config_db #(bit)::set(this, "env_h*", "dout_agent_has_driver", 0);
+
     super.build_phase(phase);
 endfunction
 
@@ -48,9 +50,9 @@ endfunction
 
 
 task dut_test::run_phase(uvm_phase phase);
-    cin_test_seq seq_h;
+    csi_image_test_seq seq_h;
 
-    seq_h = cin_test_seq::type_id::create("seq_h");
+    seq_h = csi_image_test_seq::type_id::create("seq_h");
     // dut_handler_h.recorder_db_mode = WRITE;  // enable store failed txn to 'recorder_db' file
     phase.raise_objection(this, "dut_test started");
     @ (posedge dut_vif.rst_n);

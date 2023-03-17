@@ -9,10 +9,9 @@
 
 // ****************************************************************************************************************************
 class dut_fcc  #(type   T_DIN_TXN   = dutb_txn_base,
-                        T_DOUT_TXN  = dutb_txn_base,
-                        T_POUT_TXN  = dutb_txn_base)
-extends dut_fcc_base #(T_DIN_TXN, T_DOUT_TXN, T_POUT_TXN);
-    `uvm_component_param_utils(dut_fcc #(T_DIN_TXN, T_DOUT_TXN, T_POUT_TXN))
+                        T_DOUT_TXN  = dutb_txn_base)
+extends dut_fcc_base #(T_DIN_TXN, T_DOUT_TXN);
+    `uvm_component_param_utils(dut_fcc #(T_DIN_TXN, T_DOUT_TXN))
 
     covergroup cover_din_txn (string name);
         option.per_instance = 1;

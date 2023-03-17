@@ -1,0 +1,4 @@
+Camera Serial Interface D-PHY Transmitter behavioral model.
+1. Accepts image (VSync, HSync, Data(14bit), CLk)
+2. Packs into CSI protocol data packet and writes into FIFO-buffer.
+3. D-PHY (one Clock and several Data lines) reads from FIFO-buffer and sends data burst

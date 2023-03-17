@@ -27,7 +27,7 @@ endfunction
 
 function void dut_if_proxy::build_phase(uvm_phase phase);
     super.build_phase(phase);
-    // connect to dut interface
+    // connect to DUT interface
     if (!uvm_config_db #(virtual dut_if)::get(this, "", "dut_vif", dut_vif))
         `uvm_fatal("CFG_DB_ERROR", "Unable to get 'dut_vif' from config db")
 endfunction
