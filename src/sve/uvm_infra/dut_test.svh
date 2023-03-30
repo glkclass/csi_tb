@@ -55,7 +55,7 @@ task dut_test::run_phase(uvm_phase phase);
     seq_h = csi_image_test_seq::type_id::create("seq_h");
     // dut_handler_h.recorder_db_mode = WRITE;  // enable store failed txn to 'recorder_db' file
     phase.raise_objection(this, "dut_test started");
-    @ (posedge dut_vif.rst_n);
+    @ (posedge dut_vif.rst);
     // 
 
     fork

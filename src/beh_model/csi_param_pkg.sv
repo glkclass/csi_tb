@@ -35,9 +35,16 @@ package csi_param_pkg;
     PIXEL14BITS_DATA_TYPE               =   6'h2D,
     FRAME_START_DATA_TYPE               =   6'h0,
     FRAME_END_DATA_TYPE                 =   6'h1,
-    FRAME_COUNTER_WIDTH                 =   16,
-    FRAME_HEADER_WIDTH                  =   32,
+    
+    // FRAME_COUNTER_WIDTH                 =   16,
+    // LONG_PACKET_WC_WIDTH                =   16,
+    // SHORT_PACKET_HEADER_WIDTH           =   32,
+    // LONG_PACKET_HEADER_WIDTH            =   32,
+    // LONG_PACKET_FOOTER_WIDTH            =   16,
+    // ECC_WIDTH                           =   8,
+    // DATA_ID_WIDTH                       =   8,
 
+    BYTE_WIDTH                          =   8,   // Width of byte
     CSI_FIFO_DATA_WIDTH                 =   8,   // Width of FIFO word
     CSI_FIFO_MAX_SIZE                   =   10*IMAGE_LINES*IMAGE_LINE_PIXELS;
 

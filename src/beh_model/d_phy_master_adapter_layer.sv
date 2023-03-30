@@ -5,7 +5,6 @@
     Description     :   MIPI D-PHY v.2.5 PHY Adapter Layer that ties all Lanes( Data and Clock) and the PHY Protocol Interface together.
 ******************************************************************************************************************************/
 
-
 // ****************************************************************************************************************************
 import csi_param_pkg::*;
 import csi_typedef_pkg::*;
@@ -13,17 +12,21 @@ import csi_typedef_pkg::*;
 
 module d_phy_master_adapter_layer (
     input logic hs_clk,
-    interface csi_fifo,
+    fifo_out_if fifo,
     d_phy_appi_if appi,
     interface line
     );
+// ****************************************************************************************************************************
 
+// ****************************************************************************************************************************
     // For every Data Lane extract tx word from fifo
     task pop_vector(output t_data_lane_bus vec);
         foreach (vec[i])
-            csi_fifo.pop(vec[i]);
+            fifo.pop(vec[i]);
     endtask
+// ****************************************************************************************************************************
 
+// ****************************************************************************************************************************
     // inputs
 
     // internals
@@ -53,15 +56,16 @@ module d_phy_master_adapter_layer (
     t_lane_signal
         stop_state, tx_ready_hs;
 
-
     int open_requests = 0;
+// ****************************************************************************************************************************
+
+// ****************************************************************************************************************************
     always
         begin
             // Wait for the 'request to send burst' from protocol
             @(posedge hs_tx_word_clk iff appi.TxRequestHS)
                 open_requests++;
         end
-
 
 
     // Receive HS TX request from protocol and pass it to Lane
@@ -100,19 +104,12 @@ module d_phy_master_adapter_layer (
 
 
 
-
-
-
     // Clock generator
     d_phy_clk_gen d_phy_clk_gen (
         .hs_clk(hs_clk),
         .hs_tx_word_clk(hs_tx_word_clk),
         .esc_tx_clk(esc_tx_clk));
     assign appi.TxWordClkHS =   hs_tx_word_clk;
-
-
-
-
 
 
     assign d_phy_mcnn_ppi_if.Enable         =   appi.Enable;

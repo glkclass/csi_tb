@@ -15,12 +15,12 @@ module dut_wrp(dut_if vif);
     csi_master_protocol_layer   csi_master_protocol_layer(
         .ci(vif.ci_vif.rx),
         .appi(vif.d_phy_appi_vif.protocol),
-        .csi_fifo(vif.csi_fifo_vif));
+        .fifo(vif.fifo_in_vif));
 
     d_phy_master_adapter_layer  d_phy_master_adapter_layer(
         .hs_clk(vif.hs_clk),
         .appi(vif.d_phy_appi_vif.adapter),
-        .csi_fifo(vif.csi_fifo_vif),
+        .fifo(vif.fifo_out_vif),
         .line(vif.d_phy_adapter_line_vif.master));
 
 

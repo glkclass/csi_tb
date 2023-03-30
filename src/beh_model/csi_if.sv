@@ -15,7 +15,7 @@ import dutb_macro_pkg::*;
 import csi_param_pkg::*;
 import csi_typedef_pkg::*;
 
-
+// ****************************************************************************************************************************
 // Full PPI interface to D-PHY CIL-XXXX Lane
 interface d_phy_full_ppi_if;
     logic                                   TxWordClkHS;
@@ -126,9 +126,13 @@ interface d_phy_full_ppi_if;
             UlpsActiveNot
         );
 endinterface
+// ****************************************************************************************************************************
 
-interface d_phy_appi_if(input Enable);
+
+// ****************************************************************************************************************************
+interface d_phy_appi_if();
     logic
+        Enable,     // Enable Lane, protocol and adapter modules  
         Stopstate,
         TxRequestHS,
         TxWordClkHS;
@@ -158,87 +162,112 @@ interface d_phy_appi_if(input Enable);
     );
 
 endinterface
+// ****************************************************************************************************************************
 
 
+// ****************************************************************************************************************************
 // Camera serial interface
-interface ci_if (input Clk, Rst_n);
+interface ci_if (
+    input 
+        rst, 
+        clk);  // clock to read out data from Image sensor 
     logic
-        Enable = LOW,
-        VSync = 1'b0,
-        HSync = 1'b0;
+        ready = 1'b0;  // CSI protocol is ready to accept image frame
+
+    // Camera Serial If
+    logic
+        vsync = 1'b0,
+        hsync = 1'b0;
     t_pixel
-        Data = {IMAGE_PIXEL_WIDTH{1'bx}};
+        data = {IMAGE_PIXEL_WIDTH{1'bx}};
 
     // Camera -> CSI protocol
     modport tx (
-        input   Clk, Rst_n,
-        output  VSync, HSync, Data);
+        input   clk, rst, ready,
+        output  vsync, hsync, data);
 
     //  CSI protocol <- Camera
     modport rx (
-        input Clk, Rst_n, Enable, VSync, HSync, Data);
+        input clk, rst, vsync, hsync, data,
+        output ready);
 endinterface
+// ****************************************************************************************************************************
 
-// Fifo interface
-interface csi_fifo_if(input ClkRx, ClkTx);
-    logic
-        ValidRx,
-        FullRx = FALSE,
 
-        ReadyTx,
-        EmptyTx = TRUE;
-
-    t_fifo_data
-        DataRx,
-        DataTx;
-
-    t_fifo_data fifo[$];
+// ****************************************************************************************************************************
+// FIFO input interface
+interface fifo_in_if(input rst, clk);
+    logic           
+                    valid       = FALSE,
+                    full        = FALSE;
+    t_fifo_data     data;
+    t_fifo_data     fifo[$];
 
     task push(input t_fifo_data data);
-        `ASSERT (~full(), $sformatf("FIFO is full, size = %d",size()));
+        `ASSERT (~is_full(), $sformatf("FIFO is full, size = %d", size()));
         fifo.push_front(data);
-        EmptyTx = FALSE;
-        // log_debug($sformatf("Push data: 0x%2H, FIFO size = %0d",data, size()), FALSE);
-    endtask
-
-    task pop(output t_fifo_data data);
-        `ASSERT (~empty(), "FIFO is empty");
-        data = fifo.pop_back();
-        EmptyTx = empty() ? TRUE : FALSE;
-        // log_debug($sformatf("Pop data: 0x%2H, FIFO size = %0d",data, size()), FALSE);
+        // `uvm_debug($sformatf("Push data: 0x%2H, FIFO size = %0d", data, size()));
+        full = is_full();
     endtask
 
     function int size();
         return fifo.size();
     endfunction : size
 
-    function logic empty();
-        return 0 == fifo.size();
-    endfunction
-
-    function logic full();
+    function logic is_full();
         return CSI_FIFO_MAX_SIZE <= fifo.size();
     endfunction
 
+    // FIFO <- CSI protocol
+    modport rx (
+        input   clk, valid, data,
+        output  full);
 
-    // modport master_tx (
-    //     output  ClkRx, ValidRx, DataRx,
-    //     input   FullRx);
-
-    modport slave_rx (
-        input   ClkRx, ValidRx, DataRx,
-        output  FullRx);
-
-    // modport master_rx (
-    //     output  ClkTx, ReadyTx,
-    //     input   EmptyTx, DataTx);
-
-    modport slave_tx (
-        inout   ClkTx, ReadyTx,
-        output  EmptyTx, DataTx);
+    // CSI protocol -> FIFO
+    modport tx (
+        input   clk, full,
+        output  valid, data);
 endinterface
+// ****************************************************************************************************************************
 
 
+// ****************************************************************************************************************************
+// FIFO output interface
+interface fifo_out_if(input rst, clk);
+    logic
+                    ready = FALSE,
+                    empty = FALSE;
+    t_fifo_data     data;
+    t_fifo_data     fifo[$];
+
+    task pop(output t_fifo_data data);
+        `ASSERT (~is_empty(), "FIFO is empty");
+        data = fifo.pop_back();
+        empty = is_empty();
+        `uvm_debug($sformatf("Pop data: 0x%2H, FIFO size = %0d",data, size()));
+    endtask
+
+    function int size();
+        return fifo.size();
+    endfunction : size
+
+    function logic is_empty();
+        return 0 == fifo.size();
+    endfunction
+
+    // FIFO -> APPI
+    modport out_tx (
+        input   clk, ready,
+        output  empty, data);
+
+    // APPI <- FIFO
+    modport out_rx (
+        input   clk, empty, data,
+        output  ready);
+endinterface
+// ****************************************************************************************************************************
+
+// ****************************************************************************************************************************
 // Interface to output Line (One Clock and up to N Data lines)
 interface d_phy_adapter_line_if;
     parameter   N = N_DATA_LANES;  //Number of data lines
@@ -249,4 +278,5 @@ interface d_phy_adapter_line_if;
     modport master (output clk, data);
     modport slave (input clk, data);
 endinterface
+// ****************************************************************************************************************************
 // ****************************************************************************************************************************

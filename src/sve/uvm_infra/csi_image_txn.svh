@@ -12,7 +12,7 @@
     Class           :   csi_image_txn
     Description     :   Image Txn: 2-D image, every pixel has 14 bits, number and size of lines are defined as parameters.
                         A gap between lines and images, image pixels are randomized.
-                        A monitor expects a correct 'Vsync, Hsync, Pixel' protocol and doesn't perform any checks. 
+                        A monitor expects a correct 'vsync, hsync, Pixel' protocol and doesn't perform any checks. 
                         A correctness should be checked using SVA inside the If.
 ******************************************************************************************************************************/
 
@@ -145,28 +145,28 @@ task csi_image_txn::drive(input dutb_if_proxy_base dutb_if);
     `ASSERT_TYPE_CAST(dut_if, dutb_if)
     vif = dut_if.dut_vif.ci_vif;
 
-    wait (vif.Rst_n);   // wait for reset off
+    wait (vif.rst);   // wait for reset off
 
     repeat(image_gap)
-        @(posedge vif.Clk) #0;
+        @(posedge vif.clk) #0;
 
-    vif.VSync = HIGH;
+    vif.vsync = HIGH;
     foreach (image[i]) 
         begin
-            vif.HSync = HIGH;
+            vif.hsync = HIGH;
             foreach (image[i][j]) 
                 begin
                     // `uvm_debug("TXNDBG", $sformatf("%d %d", i, j));
-                    vif.Data = image[i][j];
-                    @(posedge vif.Clk) #0;
+                    vif.data = image[i][j];
+                    @(posedge vif.clk) #0;
                 end
-            vif.HSync = LOW;
-            vif.Data = {IMAGE_PIXEL_WIDTH{X}};                
+            vif.hsync = LOW;
+            vif.data = {IMAGE_PIXEL_WIDTH{X}};                
             if ((IMAGE_LINES - 1) != i)  // no gap after last line
                 repeat(line_gap)
-                    @(posedge vif.Clk) #0;
+                    @(posedge vif.clk) #0;
         end
-    vif.VSync = LOW;
+    vif.vsync = LOW;
 endtask
 
 
@@ -174,12 +174,12 @@ task csi_image_txn::monitor(input dutb_if_proxy_base dutb_if);
     `ASSERT_TYPE_CAST(dut_if, dutb_if)
     vif = dut_if.dut_vif.ci_vif;
 
-    wait (vif.Rst_n) #0;   // wait for reset off
+    wait (vif.rst) #0;   // wait for reset off
 
     foreach (image[i, j]) 
         begin
-            @(posedge vif.Clk iff vif.VSync & vif.HSync)
-            image[i][j] = vif.Data;
+            @(posedge vif.clk iff vif.vsync & vif.hsync)
+            image[i][j] = vif.data;
         end
 
     // to debug fcc

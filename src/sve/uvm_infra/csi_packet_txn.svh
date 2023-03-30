@@ -72,12 +72,12 @@ task csi_packet_txn::monitor(input dutb_if_proxy_base dutb_if);
     `ASSERT_TYPE_CAST(dut_if, dutb_if)
     vif = dut_if.dut_vif.ci_vif;
 
-    wait (vif.Rst_n) #0;   // wait for reset off
+    wait (vif.rst) #0;   // wait for reset off
 
     foreach (image[i, j]) 
         begin
-            @(posedge vif.Clk iff vif.VSync & vif.HSync)
-            image[i][j] = vif.Data;
+            @(posedge vif.clk iff vif.vsync & vif.hsync)
+            image[i][j] = vif.data;
         end
 endtask
 // ****************************************************************************************************************************
