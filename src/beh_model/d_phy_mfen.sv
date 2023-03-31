@@ -11,7 +11,6 @@
 import csi_param_pkg::*;
 import csi_typedef_pkg::*;
 
-
 module d_phy_mfen (
     input hs_clk,
     interface ppi,
@@ -25,12 +24,13 @@ module d_phy_mfen (
         EscUlpsStart, EscUlps, EscUlpsFinish,
         Error } t_mcnn_states;
 
-    t_mcnn_states state, next_state;
+    t_mcnn_states state = Off, next_state = Off;
 
     // inputs
     // outputs
     // internals
 
+// ****************************************************************************************************************************
     // tasks
     // Shift 8/16/32-bit HS data word out to line (LSB-first) based on hs_clk (both edges)
     // If n_ui > 8/16/32 last bit is sent several times.
@@ -74,16 +74,17 @@ module d_phy_mfen (
                 data  >>=  1;
             end
     endtask : send_lp_data
+// ****************************************************************************************************************************
 
 
+// ****************************************************************************************************************************
     // model
-    // *********************************************************************
-
     // Lane main FSM
     always @(state, ppi.Enable)
         begin
             // logic [HS_TX_WORD_BIT_WIDTH-1 : 0] tx_word;
-            // log_debug($sformatf("MFEN \t%6s %6s", next_state.name(), state.name()));
+            // `uvm_debug($sformatf("state: %s", state.name()))
+
             case(state)
                 // Shutdown
                 Off:
@@ -94,6 +95,7 @@ module d_phy_mfen (
 
                         wait (ppi.Enable);  // Take Lane out from Shutdown mode
                         next_state = Init;
+                        `uvm_debug($sformatf("next_state: %s", next_state.name()))
                     end
 
                 // Initialization stage
@@ -109,6 +111,7 @@ module d_phy_mfen (
                             #T_INIT;
                         join_any disable fork;
                         next_state = (~ppi.Enable) ? Off : Stop;
+                        `uvm_debug($sformatf("next_state: %s", next_state.name()))
                     end
 
                 // Generate LP11 and waiting for requests
@@ -118,23 +121,23 @@ module d_phy_mfen (
                         line = LP11;
 
                         fork
-                            `ASSERT_WAIT(ppi.TxHSIdleClkHS, "'HS Tx Idle' shouldn't be asserted here!");
+                            `ASSERT_WAIT(ppi.TxHSIdleClkHS, "'HS Tx Idle' shouldn't be asserted here!")                           
 
                             // 3 ways to leave Stop stage: Shutdown, request for HS Tx , request for ESC mode .
                             wait(~ppi.Enable | ppi.TxRequestHS);
 
                             @(posedge ppi.TxClkEsc iff ppi.TxRequestEsc & ~ppi.TxUlpsEsc)
-                                `ASSERT(FALSE, "Request Esc should be asserted together with ULPS!");
+                                `ASSERT(FALSE, "Request Esc should be asserted together with ULPS!")
 
                             @(posedge ppi.TxClkEsc iff ppi.TxRequestEsc & ppi.TxUlpsEsc);
-
                         join_any disable fork;
 
-                        `ASSERT (~ppi.TxRequestHS  | ~ppi.TxRequestEsc, "'HS Tx' and 'ESC' modes are mutually exclusive!");
+                        `ASSERT (~ppi.TxRequestHS  | ~ppi.TxRequestEsc, "'HS Tx' and 'ESC' modes are mutually exclusive!")
 
                         next_state =    (~ppi.Enable)           ?   Off :
-                                        (ppi.TxRequestHS)     ?   HsTxStart :
-                                        (ppi.TxRequestEsc)    ?   EscUlpsStart: Error;
+                                        (ppi.TxRequestHS)       ?   HsTxStart :
+                                        (ppi.TxRequestEsc)      ?   EscUlpsStart: Error;
+                        `uvm_debug($sformatf("next_state: %s", next_state.name()))
                     end
 
                 // Start HS Data Burst from 'Stop' stage
@@ -142,9 +145,9 @@ module d_phy_mfen (
                     begin
                         ppi.Stopstate = FALSE;
                         fork
-                            `ASSERT_WAIT(ppi.TxRequestEsc, "'HS Tx' and 'ULPS' modes are mutually exclusive!");
-                            `ASSERT_WAIT(~ppi.TxRequestHS, "'TxRequestHS' shouldn't be deasserted during 'HS Tx StartUp' stage!");
-                            `ASSERT_WAIT(ppi.TxHSIdleClkHS, "'HS Tx Idle' shouldn't be asserted during 'HS Tx StartUp' stage!");
+                            `ASSERT_WAIT(ppi.TxRequestEsc, "'HS Tx' and 'ULPS' modes are mutually exclusive!")
+                            `ASSERT_WAIT(~ppi.TxRequestHS, "'TxRequestHS' shouldn't be deasserted during 'HS Tx StartUp' stage!")
+                            `ASSERT_WAIT(ppi.TxHSIdleClkHS, "'HS Tx Idle' shouldn't be asserted during 'HS Tx StartUp' stage!")
                             wait (~ppi.Enable); // It's Ok to Shutdown Lane at any moment
 
                             // StartUp stage
@@ -166,9 +169,9 @@ module d_phy_mfen (
                     begin
                         // schedule first burst word to sent
                         fork
-                            `ASSERT_WAIT(ppi.TxRequestEsc, "'HS Tx' and 'ULPS' modes are mutually exclusive!");
-                            `ASSERT_WAIT(~ppi.TxRequestHS, "'TxRequestHS' shouldn't be deasserted till at least one TX word will be sent!");
-                            `ASSERT_WAIT(ppi.TxHSIdleClkHS, "'HS Tx Idle' shouldn't be asserted till at least one TX word will be sent!");
+                            `ASSERT_WAIT(ppi.TxRequestEsc, "'HS Tx' and 'ULPS' modes are mutually exclusive!")
+                            `ASSERT_WAIT(~ppi.TxRequestHS, "'TxRequestHS' shouldn't be deasserted till at least one TX word will be sent!")
+                            `ASSERT_WAIT(ppi.TxHSIdleClkHS, "'HS Tx Idle' shouldn't be asserted till at least one TX word will be sent!")
 
                             // 1 way to leave HS Tx stage here: Shutdown,
                             wait (~ppi.Enable);
@@ -184,7 +187,7 @@ module d_phy_mfen (
 
                         // schedule and send rest of burst
                         fork
-                            `ASSERT_WAIT(ppi.TxRequestEsc, "'HS Tx' and 'ULPS' modes are mutually exclusive!");
+                            `ASSERT_WAIT(ppi.TxRequestEsc, "'HS Tx' and 'ULPS' modes are mutually exclusive!")
 
                             // 3 ways to leave HS Tx stage: Shutdown - at any time,
                             // request for 'HS Tx' finish or request for 'HS TX Idle' mode - after scheduled word will be sent
@@ -202,7 +205,7 @@ module d_phy_mfen (
                             @ (posedge ppi.TxWordClkHS iff (~ppi.TxRequestHS | ppi.TxHSIdleClkHS));
                         join_any disable fork;
 
-                        `ASSERT (ppi.TxRequestHS | ~ppi.TxHSIdleClkHS, "'HS Tx Finish' and 'HS Tx Idle' modes are mutually exclusive!");
+                        `ASSERT (ppi.TxRequestHS | ~ppi.TxHSIdleClkHS, "'HS Tx Finish' and 'HS Tx Idle' modes are mutually exclusive!")
 
                         next_state =    (~ppi.Enable) ? Off :
                                         (~ppi.TxRequestHS) ? HsTxFinish :
@@ -213,9 +216,9 @@ module d_phy_mfen (
                 HsTxFinish:
                     begin
                         fork
-                            `ASSERT_WAIT(ppi.TxRequestEsc, "'HS Tx' and 'ULPS' modes are mutually exclusive!");
-                            `ASSERT_WAIT(ppi.TxRequestHS, "Too short gap between HS TX stages!");
-                            `ASSERT_WAIT(ppi.TxHSIdleClkHS, "'HS Tx Idle' shouldn't be asserted here!");
+                            `ASSERT_WAIT(ppi.TxRequestEsc, "'HS Tx' and 'ULPS' modes are mutually exclusive!")
+                            `ASSERT_WAIT(ppi.TxRequestHS, "Too short gap between HS TX stages!")
+                            `ASSERT_WAIT(ppi.TxHSIdleClkHS, "'HS Tx Idle' shouldn't be asserted here!")
 
                             // 1 way to leave HS Tx finish stage: Shutdown
                             wait (~ppi.Enable);
@@ -238,9 +241,9 @@ module d_phy_mfen (
                 HsTxIdleStart:
                     begin
                         fork
-                            `ASSERT_WAIT(ppi.TxRequestEsc, "'HS Tx(Idle)' and 'Esc' modes are mutually exclusive!");
-                            `ASSERT_WAIT(~ppi.TxRequestHS, "'TxRequestHS' shouldn't be deasserted during HS TX Idle!");
-                            `ASSERT_WAIT(~ppi.TxHSIdleClkHS, "'HS Tx Idle' shouldn't be deasserted here!");
+                            `ASSERT_WAIT(ppi.TxRequestEsc, "'HS Tx(Idle)' and 'Esc' modes are mutually exclusive!")
+                            `ASSERT_WAIT(~ppi.TxRequestHS, "'TxRequestHS' shouldn't be deasserted during HS TX Idle!")
+                            `ASSERT_WAIT(~ppi.TxHSIdleClkHS, "'HS Tx Idle' shouldn't be deasserted here!")
 
                             wait (~ppi.Enable); // It's Ok to Shutdown Lane at any moment
 
@@ -255,13 +258,13 @@ module d_phy_mfen (
                 HsTxIdle:
                     begin
                         fork
-                            `ASSERT_WAIT(ppi.TxRequestEsc, "'HS Tx(Idle)' and 'Esc' modes are mutually exclusive!");
-                            `ASSERT_WAIT(~ppi.TxRequestHS, "'TxRequestHS' shouldn't be deasserted during HS TX Idle!");
+                            `ASSERT_WAIT(ppi.TxRequestEsc, "'HS Tx(Idle)' and 'Esc' modes are mutually exclusive!")
+                            `ASSERT_WAIT(~ppi.TxRequestHS, "'TxRequestHS' shouldn't be deasserted during HS TX Idle!")
                             // 2 ways to leave HS Tx Idle stage: Shutdown or request to exit 'HS Tx Idle' mode
                             wait (~ppi.Enable | ~ppi.TxHSIdleClkHS);
                         join_any disable fork;
 
-                        next_state =    (~ppi.Enable)               ?   Off :
+                        next_state =    (~ppi.Enable)           ?   Off :
                                         (~ppi.TxHSIdleClkHS)    ?   HsTxIdleFinish :
                                                                     Error;
                     end
@@ -269,9 +272,9 @@ module d_phy_mfen (
                 HsTxIdleFinish:
                     begin
                         fork
-                            `ASSERT_WAIT(ppi.TxRequestEsc, "'HS Tx Idle' and 'Esc' modes are mutually exclusive!");
-                            `ASSERT_WAIT(~ppi.TxRequestHS, "'TxRequestHS' shouldn't be deasserted during HS TX Idle!");
-                            `ASSERT_WAIT(ppi.TxHSIdleClkHS, "Too short gap between HS TX Idles stages!");
+                            `ASSERT_WAIT(ppi.TxRequestEsc, "'HS Tx Idle' and 'Esc' modes are mutually exclusive!")
+                            `ASSERT_WAIT(~ppi.TxRequestHS, "'TxRequestHS' shouldn't be deasserted during HS TX Idle!")
+                            `ASSERT_WAIT(ppi.TxHSIdleClkHS, "Too short gap between HS TX Idles stages!")
                             wait (~ppi.Enable); // It's Ok to Shutdown Lane at any moment
                             begin
                                 @(posedge ppi.TxReadyHSClk);  // wait for HS Clock is ready
@@ -287,10 +290,10 @@ module d_phy_mfen (
                     begin
                         ppi.Stopstate = FALSE;
                         fork
-                            `ASSERT_WAIT(ppi.TxRequestHS, "'HS Tx' and 'ULPS' modes are mutually exclusive!");
-                            `ASSERT_WAIT(ppi.TxHSIdleClkHS, "'HS Tx Idle' and 'ULPS' modes are mutually exclusive!");
-                            `ASSERT_WAIT(~ppi.TxRequestEsc, "'TxUlpsClk' shouldn't be deasserted during 'ULPS Start' stage!");
-                            `ASSERT_WAIT(ppi.TxUlpsExit, "'TxUlpsExit' shouldn't be asserted during 'ULPS Start' stage!");
+                            `ASSERT_WAIT(ppi.TxRequestHS, "'HS Tx' and 'ULPS' modes are mutually exclusive!")
+                            `ASSERT_WAIT(ppi.TxHSIdleClkHS, "'HS Tx Idle' and 'ULPS' modes are mutually exclusive!")
+                            `ASSERT_WAIT(~ppi.TxRequestEsc, "'TxUlpsClk' shouldn't be deasserted during 'ULPS Start' stage!")
+                            `ASSERT_WAIT(ppi.TxUlpsExit, "'TxUlpsExit' shouldn't be asserted during 'ULPS Start' stage!")
                             wait (~ppi.Enable); // It's Ok to Shutdown Lane at any moment
 
                             begin
@@ -305,14 +308,14 @@ module d_phy_mfen (
 
                 EscUlps:
                     begin
-                        `ASSERT(line == LP00, "Line should be LP00 here");
+                        `ASSERT(line == LP00, "Line should be LP00 here")
                         @(posedge ppi.TxClkEsc)
                             ppi.UlpsActiveNot = LOW;
 
                         fork
-                            `ASSERT_WAIT(ppi.TxRequestHS, "'HS Tx' and 'ULPS' modes are mutually exclusive!");
-                            `ASSERT_WAIT(ppi.TxHSIdleClkHS, "'HS Tx Idle' and 'ULPS' modes are mutually exclusive!");
-                            `ASSERT_WAIT(~ppi.TxRequestEsc, "'TxRequestEsc' shouldn't be deasserted during 'ULPS' stage!");
+                            `ASSERT_WAIT(ppi.TxRequestHS, "'HS Tx' and 'ULPS' modes are mutually exclusive!")
+                            `ASSERT_WAIT(ppi.TxHSIdleClkHS, "'HS Tx Idle' and 'ULPS' modes are mutually exclusive!")
+                            `ASSERT_WAIT(~ppi.TxRequestEsc, "'TxRequestEsc' shouldn't be deasserted during 'ULPS' stage!")
 
                             // 2 ways to leave ULPS stage: Shutdown or request to exit ULPS
                             wait (~ppi.Enable);
@@ -321,8 +324,8 @@ module d_phy_mfen (
                         join_any disable fork;
 
                         next_state =    (~ppi.Enable)       ?   Off :
-                                        (ppi.TxUlpsExit)  ?   EscUlpsFinish :
-                                                            Error;
+                                        (ppi.TxUlpsExit)    ?   EscUlpsFinish :
+                                                                Error;
                     end
 
                 EscUlpsFinish:
@@ -332,9 +335,9 @@ module d_phy_mfen (
                             ppi.UlpsActiveNot = HIGH;
 
                         fork
-                            `ASSERT_WAIT(ppi.TxRequestHS, "'HS Tx' and 'ULPS' modes are mutually exclusive'!");
-                            `ASSERT_WAIT(ppi.TxHSIdleClkHS, "'HS Tx Idle' and 'ULPS' modes are mutually exclusive!");
-                            `ASSERT_WAIT(~ppi.TxRequestEsc, "'TxRequestEsc' shouldn't be deasserted during 'ULPS Wakeup stage' stage!");
+                            `ASSERT_WAIT(ppi.TxRequestHS, "'HS Tx' and 'ULPS' modes are mutually exclusive'!")
+                            `ASSERT_WAIT(ppi.TxHSIdleClkHS, "'HS Tx Idle' and 'ULPS' modes are mutually exclusive!")
+                            `ASSERT_WAIT(~ppi.TxRequestEsc, "'TxRequestEsc' shouldn't be deasserted during 'ULPS Wakeup stage' stage!")
                             #T_WAKEUP;
                         join_any disable fork;
 
@@ -345,13 +348,13 @@ module d_phy_mfen (
                         join_any disable fork;
 
                         next_state =    (~ppi.Enable)           ?   Off :
-                                        (ppi.TxRequestEsc)    ?   Stop :
-                                                                Error;
+                                        (ppi.TxRequestEsc)      ?   Stop :
+                                                                    Error;
                     end
 
                 Error:
                     begin
-                        `ASSERT(FALSE, "Error MFEN FSM state");
+                        `ASSERT(FALSE, "Error FSM state")
                     end
 
                 default:
@@ -362,7 +365,10 @@ module d_phy_mfen (
         end
 
     always @(next_state)
-        state = next_state;
+        begin
+            `uvm_debug($sformatf("state: %s    next_state: %s", state.name(), next_state.name()))
+            #0 state = next_state;
+        end
 
 endmodule
 // ****************************************************************************************************************************

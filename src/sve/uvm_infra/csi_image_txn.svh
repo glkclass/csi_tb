@@ -146,6 +146,7 @@ task csi_image_txn::drive(input dutb_if_proxy_base dutb_if);
     vif = dut_if.dut_vif.ci_vif;
 
     wait (vif.rst);   // wait for reset off
+    wait (dut_if.dut_vif.d_phy_appi_vif.Stopstate);   // wait for Lane is ready (Stopstate == HIGH)
 
     repeat(image_gap)
         @(posedge vif.clk) #0;

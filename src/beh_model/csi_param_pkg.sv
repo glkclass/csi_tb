@@ -114,7 +114,7 @@ package csi_param_pkg;
     // arch
     parameter
     // Number of D-PHY Data Lanes
-    N_DATA_LANES                =   4,
+    N_DATA_LANES                =   1,
 
     // HS TX bus width in bytes. Should be multiple of bytes: 1, 2, 4.
     HS_TX_WORD_BYTE_WIDTH       =   1,
@@ -126,7 +126,7 @@ package csi_param_pkg;
     //MAX_HS_TX_WORD_BIT_WIDTH    =   32,
 
     // LOG2(HS_TX_WORD_BIT_WIDTH)
-    LOG_HS_TX_WORD_BIT_WIDTH    =   (2 + HS_TX_WORD_BYTE_WIDTH),
+    // LOG_HS_TX_WORD_BIT_WIDTH    =   (2 + HS_TX_WORD_BYTE_WIDTH),
 
 
     // All sequences will be shifted out LSB-first!!!

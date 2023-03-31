@@ -32,19 +32,17 @@ module ttb;
     csi_clk_gen                 (.clk(csi_clk));
 
 
-    ci_if                       ci_if_h(.rst(rst), .clk(csi_clk));          // camera(image sensor) serial interface
-    fifo_in_if                  fifo_in_if_h(.rst(rst), .clk(csi_clk));        // protocol fifo if
-    fifo_out_if                 fifo_out_if_h(.rst(rst), .clk(hs_clk));         // appi fifo if
+    ci_if                       ci_if_h(.rst(rst), .clk(csi_clk));              // camera(image sensor) serial interface
+    fifo_if                     fifo_if_h(.rst(rst), .clk(csi_clk));            // protocol fifo if
     
-    d_phy_appi_if               d_phy_appi_if_h();                                  // d-phy appi intreface
-    d_phy_adapter_line_if       d_phy_adapter_line_if_h();                          // d-phy data&clock line interface
+    d_phy_appi_if               d_phy_appi_if_h();                              // d-phy appi intreface
+    d_phy_adapter_line_if       d_phy_adapter_line_if_h();                      // d-phy data&clock line interface
     
     dut_if  dut_if_h(           .rst(rst), 
                                 .hs_clk(hs_clk),
                                 .csi_clk(csi_clk),
                                 .ci_vif(ci_if_h),  
-                                .fifo_in_vif(fifo_in_if_h),  
-                                .fifo_out_vif(fifo_out_if_h),  
+                                .fifo_vif(fifo_if_h),  
                                 .d_phy_appi_vif(d_phy_appi_if_h),
                                 .d_phy_adapter_line_vif(d_phy_adapter_line_if_h) );
 
@@ -57,19 +55,23 @@ module ttb;
             uvm_config_db #(virtual dut_if)::set(null, "uvm_test_top", "dut_vif", dut_if_h);
             fork
                 run_test();
-                timeout_sim(1us, 200ns);
+                timeout_sim(100us, 1us);
             join_any
         end
 
     // store waveform if not disabled
     initial `STORE_WAVE
 endmodule
+// ****************************************************************************************************************************
 
+
+// ****************************************************************************************************************************
 // Module to provide 'clock' and 'rst' signals
 module clk_gen #(parameter time T_CLK_HALF_PERIOD = 10ns) (output bit clk);
     initial     clk                         = LOW;
     always      #(T_CLK_HALF_PERIOD) clk    = ~clk;
 endmodule
+
 module rst_gen #(parameter time T_RST_LENGTH = 1ns) (output bit rst);
     initial     
         begin 

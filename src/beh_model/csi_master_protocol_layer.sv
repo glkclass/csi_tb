@@ -23,13 +23,13 @@ import csi_param_pkg::*;
 
 module csi_master_protocol_layer (
     ci_if.rx ci,
-    fifo_in_if fifo,
+    fifo_if fifo,
     d_phy_appi_if.protocol appi
     );
 // ****************************************************************************************************************************
 
 // ****************************************************************************************************************************
-    task push_vector(logic   [7*BYTE_WIDTH - 1  : 0] vec, int n_bytes=7);
+    function void push_vector(logic   [7*BYTE_WIDTH - 1  : 0] vec, int n_bytes=7);
         logic   [7*BYTE_WIDTH - 1  : 0] foo;
         foo = vec;
         repeat (n_bytes)
@@ -37,7 +37,8 @@ module csi_master_protocol_layer (
                 fifo.push(foo[BYTE_WIDTH-1 : 0]);
                 foo = foo >> BYTE_WIDTH;
             end
-    endtask : push_vector
+        // `uvm_debug($sformatf("Fifo size after write: %d",fifo.size()))
+    endfunction : push_vector
 
     function byte calc_check_sum(
         byte check_sum,
@@ -91,10 +92,12 @@ module csi_master_protocol_layer (
             @(posedge ci.vsync);
                 // Size in fifo words(bytes) of burst to send: 3 Packet headers (1 short packet + 2 packet headers) + payload
                 appi.BurstSize = (2*SHORT_PACKET_WIDTH + IMAGE_LINES*LONG_PACKET_WIDTH)/BYTE_WIDTH;
+                
+                // Generate a strobe to initiate data burst tarnsfer
                 @(posedge appi.TxWordClkHS)
-                    appi.TxRequestHS = HIGH;
+                    #0 appi.TxRequestHS = HIGH;
                 @(posedge appi.TxWordClkHS)
-                    appi.TxRequestHS = LOW;
+                    #0 appi.TxRequestHS = LOW;
         end
 
     always

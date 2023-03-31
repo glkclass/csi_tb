@@ -12,7 +12,7 @@ import csi_typedef_pkg::*;
 
 module d_phy_master_adapter_layer (
     input logic hs_clk,
-    fifo_out_if fifo,
+    fifo_if fifo,
     d_phy_appi_if appi,
     interface line
     );
@@ -20,10 +20,13 @@ module d_phy_master_adapter_layer (
 
 // ****************************************************************************************************************************
     // For every Data Lane extract tx word from fifo
-    task pop_vector(output t_data_lane_bus vec);
+    function t_data_lane_bus pop_vector();
+        t_data_lane_bus vec;
         foreach (vec[i])
-            fifo.pop(vec[i]);
-    endtask
+            vec[i] = fifo.pop();
+        // `uvm_debug($sformatf("Fifo size after read out: %d", fifo.size()))
+        return vec;
+    endfunction
 // ****************************************************************************************************************************
 
 // ****************************************************************************************************************************
@@ -44,7 +47,7 @@ module d_phy_master_adapter_layer (
         tx_request_esc = {N_DATA_LANES{FALSE}};
 
     t_data_lane_bus
-        tx_data_hs = {N_DATA_LANES{{HS_TX_WORD_BIT_WIDTH{FALSE}}}};
+        tx_data_hs = {N_DATA_LANES{{HS_TX_WORD_BIT_WIDTH{X}}}};
 
     // inputs to Lane
     t_lane_signal
@@ -56,44 +59,48 @@ module d_phy_master_adapter_layer (
     t_lane_signal
         stop_state, tx_ready_hs;
 
-    int open_requests = 0;
+    int open_requests = 0;  //count data transfer requests
 // ****************************************************************************************************************************
 
 // ****************************************************************************************************************************
+    // Integral Lane Stopstate signal (inform protocol that Lane is ready)
+    assign appi.Stopstate = (stop_state.clk & (&stop_state.data));
+
     always
         begin
-            // Wait for the 'request to send burst' from protocol
+            // Wait for the 'request (1-clock strobe) to initiate data burst sending' from protocol
             @(posedge hs_tx_word_clk iff appi.TxRequestHS)
-                open_requests++;
+                #0 open_requests++;
         end
 
 
     // Receive HS TX request from protocol and pass it to Lane
     always
         begin
-            wait (stop_state.clk & (&stop_state.data))
-            // Need to add more checks here
-            appi.Stopstate = TRUE;
-
             wait (open_requests > 0);
 
             // Start D-PHY transmitt procedure
             tx_request_hs.clk   = TRUE;  // request Clock Lane to start Clock
             @(posedge tx_ready_hs.clk);  // clock is running
 
+            `uvm_debug($sformatf("Burst read out started. Fifo size: %d",fifo.size()))
             @(posedge hs_tx_word_clk)
                 tx_request_hs.data  =   {N_DATA_LANES{TRUE}};  // request All Data Lanes to start transmitting
-                pop_vector(tx_data_hs);  // read N_DATA_LANES bytes from fifo
-                // log_debug($sformatf("Pop Header: 0x%8H, FIFO size = %0d", {tx_data_hs[3], tx_data_hs[2], tx_data_hs[1], tx_data_hs[0]}, csi_fifo.size()), TRUE);
+                #0 tx_data_hs = pop_vector();  // read first N_DATA_LANES bytes from fifo
 
-            repeat (appi.BurstSize/4 - 1)
+            // read rest burst
+            repeat (appi.BurstSize/N_DATA_LANES - 1)
                 @(posedge hs_tx_word_clk iff (&tx_ready_hs.data))
-                    pop_vector(tx_data_hs);  // read N_DATA_LANES bytes from fifo
-            // log_debug($sformatf("Pop Header: 0x%8H, FIFO size = %0d", {tx_data_hs[3], tx_data_hs[2], tx_data_hs[1], tx_data_hs[0]}, csi_fifo.size()), TRUE);
-
+                    #0 tx_data_hs = pop_vector();  // read N_DATA_LANES bytes from fifo
+            
+            // last N_DATA_LANES bytes transmitted
             @(posedge hs_tx_word_clk iff (&tx_ready_hs.data))
-               tx_request_hs.data   =   {N_DATA_LANES{FALSE}};  // request Data Lane to finish transmitting
+                #0 tx_request_hs.data   =   {N_DATA_LANES{FALSE}};  // request Data Lane to finish transmitting
+                #0 tx_data_hs = {N_DATA_LANES{{HS_TX_WORD_BIT_WIDTH{X}}}};
 
+            `uvm_debug($sformatf("Burst read out finished. Fifo size: %d",fifo.size()))
+
+            // given request is processed
             @(negedge hs_tx_word_clk)
                 open_requests--;
 
@@ -101,7 +108,6 @@ module d_phy_master_adapter_layer (
                 tx_request_hs.clk   =   FALSE;                  //  request Clock Lane to stop Clock
 
         end
-
 
 
     // Clock generator
@@ -112,6 +118,7 @@ module d_phy_master_adapter_layer (
     assign appi.TxWordClkHS =   hs_tx_word_clk;
 
 
+    // Clock Lane
     assign d_phy_mcnn_ppi_if.Enable         =   appi.Enable;
     assign d_phy_mcnn_ppi_if.TxWordClkHS    =   hs_tx_word_clk;
     assign d_phy_mcnn_ppi_if.TxRequestHS    =   tx_request_hs.clk;
@@ -122,7 +129,6 @@ module d_phy_master_adapter_layer (
     assign tx_ready_hs.clk                  =   d_phy_mcnn_ppi_if.TxReadyHS;
     assign stop_state.clk                   =   d_phy_mcnn_ppi_if.Stopstate;
 
-    // Clock Lane
     d_phy_full_ppi_if   d_phy_mcnn_ppi_if();
     d_phy_mcnn d_phy_mcnn (
         .hs_clk(hs_clk),
@@ -159,8 +165,6 @@ generate
                 .hs_clk(hs_clk),
                 .ppi(d_phy_mfen_ppi_if.mfen),
                 .line(line.data[ii]));
-
-
         end
 endgenerate
 
