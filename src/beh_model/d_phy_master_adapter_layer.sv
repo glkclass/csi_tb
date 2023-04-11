@@ -63,42 +63,47 @@ module d_phy_master_adapter_layer (
 // ****************************************************************************************************************************
 
 // ****************************************************************************************************************************
-    // Integral Lane Stopstate signal (inform protocol that Lane is ready)
+    // Integral Lane Stopstate signal (inform protocol side that Lane is ready)
     assign appi.Stopstate = (stop_state.clk & (&stop_state.data));
+
+    // Used only for monitoring data stream from adapter to Data Lane
+    assign appi.TxReadyHS = (&tx_ready_hs.data);
+    assign appi.TxDataHS = tx_data_hs;
+
 
     always
         begin
-            // Wait for the 'request (1-clock strobe) to initiate data burst sending' from protocol
-            @(posedge hs_tx_word_clk iff appi.TxRequestHS)
-                #0 open_requests++;
+            // Wait for the 'request (1-clock strobe) to initiate data burst sending' from protocol side
+            @(posedge hs_tx_word_clk iff appi.TxRequestHS) #0 
+                open_requests++;
         end
 
 
-    // Receive HS TX request from protocol and pass it to Lane
+    // Receive HS TX request from protocol and transfer it to Lane
     always
         begin
             wait (open_requests > 0);
 
             // Start D-PHY transmitt procedure
             tx_request_hs.clk   = TRUE;  // request Clock Lane to start Clock
-            @(posedge tx_ready_hs.clk);  // clock is running
+            @(posedge tx_ready_hs.clk);  // feedback: Clock is running
 
-            `uvm_debug($sformatf("Burst read out started. Fifo size: %d",fifo.size()))
-            @(posedge hs_tx_word_clk)
+            `uvm_debug_m($sformatf("Burst read out started. Fifo size: %0d", fifo.size()))
+            @(posedge hs_tx_word_clk) #0 
                 tx_request_hs.data  =   {N_DATA_LANES{TRUE}};  // request All Data Lanes to start transmitting
-                #0 tx_data_hs = pop_vector();  // read first N_DATA_LANES bytes from fifo
+                tx_data_hs = pop_vector();  // read first N_DATA_LANES bytes from fifo
 
             // read rest burst
             repeat (appi.BurstSize/N_DATA_LANES - 1)
-                @(posedge hs_tx_word_clk iff (&tx_ready_hs.data))
-                    #0 tx_data_hs = pop_vector();  // read N_DATA_LANES bytes from fifo
+                @(posedge hs_tx_word_clk iff (&tx_ready_hs.data)) #0 
+                    tx_data_hs = pop_vector();  // read N_DATA_LANES bytes from fifo
             
             // last N_DATA_LANES bytes transmitted
-            @(posedge hs_tx_word_clk iff (&tx_ready_hs.data))
-                #0 tx_request_hs.data   =   {N_DATA_LANES{FALSE}};  // request Data Lane to finish transmitting
-                #0 tx_data_hs = {N_DATA_LANES{{HS_TX_WORD_BIT_WIDTH{X}}}};
+            @(posedge hs_tx_word_clk iff (&tx_ready_hs.data)) #0
+                tx_request_hs.data   =   {N_DATA_LANES{FALSE}};  // request Data Lane to finish transmitting
+                tx_data_hs = {N_DATA_LANES{{HS_TX_WORD_BIT_WIDTH{X}}}};
 
-            `uvm_debug($sformatf("Burst read out finished. Fifo size: %d",fifo.size()))
+            `uvm_debug_m($sformatf("Burst read out finished. Fifo size: %0d",fifo.size()))
 
             // given request is processed
             @(negedge hs_tx_word_clk)

@@ -11,6 +11,7 @@ module dut_wrp(dut_if vif);
 
     import dut_tb_param_pkg::*;
 
+    // we don't want to turn Enable on using sequencer(special sequence, txn etc). So put it here.
     assign vif.d_phy_appi_vif.Enable = vif.rst;
 
     csi_master_protocol_layer   csi_master_protocol_layer(

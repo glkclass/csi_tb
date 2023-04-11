@@ -10,19 +10,18 @@
 class csi_packet_txn extends dutb_txn_base;
     `uvm_object_utils(csi_packet_txn)
 
-    dut_if_proxy    dut_if;
-    virtual ci_if   vif;
+    dut_if_proxy            dut_if;
+    virtual d_phy_appi_if   vif;
 
-    rand int        line_gap, image_gap;                    //  gap between sequential lines and images
-    rand t_pixel    image[IMAGE_LINES][IMAGE_LINE_PIXELS];  //  2-D matrix of 14-bit pixel
+    byte            csi_frame_start[SHORT_PACKET_WIDTH_BYTES], csi_frame_finish[SHORT_PACKET_WIDTH_BYTES];
+    byte            csi_frame[IMAGE_LINES][LONG_PACKET_WIDTH_BYTES];
+    
+    // t_pixel    image[IMAGE_LINES][IMAGE_LINE_PIXELS];  //  2-D matrix of 14-bit pixel
 
-    constraint      c_line_gap      {line_gap == 1;}
-    constraint      c_image_gap     {image_gap == 10;}
-
+    
     extern function                             new             (string name = "csi_packet_txn");
     extern virtual  function vector             pack2vector     ();                                     // represent 'txn content' as 'vector of int'
     extern virtual  function void               unpack4vector   (vector packed_txn);                    // extract 'txn content' from 'vector of int'
-    extern virtual  function void               gold            (dutb_txn_base txn);                    // generate a gold output txn
     // extern virtual  task                        drive           (input dutb_if_proxy_base dutb_if);     // write 'txn content' to interface
     extern virtual  task                        monitor         (input dutb_if_proxy_base dutb_if);     // read 'txn content' from interface
 endclass
@@ -37,30 +36,45 @@ endfunction
 
 function vector csi_packet_txn::pack2vector();
     vector foo;
-    foo = new[IMAGE_LINES*IMAGE_LINE_PIXELS];
-    foreach (image[i, j]) 
+    foo = new[IMAGE_LINES * LONG_PACKET_WIDTH_BYTES + 2*SHORT_PACKET_WIDTH_BYTES];
+
+    foreach (csi_frame_start[i]) 
         begin
-            foo[i*IMAGE_LINE_PIXELS + j] = image[i][j];
+            foo[i] = csi_frame_start[i];
         end
+
+    foreach (csi_frame_finish[i]) 
+        begin
+            foo[SHORT_PACKET_WIDTH_BYTES + i] = csi_frame_finish[i];
+        end
+
+    foreach (csi_frame[i, j]) 
+        begin
+            foo[2*SHORT_PACKET_WIDTH_BYTES + i*LONG_PACKET_WIDTH_BYTES + j] = csi_frame[i][j];
+        end
+
     return foo;
 endfunction
 
 
 function void csi_packet_txn::unpack4vector(vector packed_txn);
-    `ASSERT (packed_txn.size() == IMAGE_LINES*IMAGE_LINE_PIXELS, 
+    `ASSERT (packed_txn.size() == (IMAGE_LINES * LONG_PACKET_WIDTH_BYTES + 2*SHORT_PACKET_WIDTH_BYTES), 
             $sformatf("Wrong 'packed_txn' size: %0d", packed_txn.size()))    
     
-    foreach (image[i, j]) 
+    foreach (csi_frame_start[i]) 
         begin
-            image[i][j] = packed_txn[i*IMAGE_LINE_PIXELS + j];
+            csi_frame_start[i] = byte'(packed_txn[i]);
         end
-endfunction
 
+    foreach (csi_frame_finish[i]) 
+        begin
+            csi_frame_start[i] = byte'(packed_txn[SHORT_PACKET_WIDTH_BYTES + i]);
+        end
 
-function void csi_packet_txn::gold(dutb_txn_base txn);
-    dutb_txn_base dout_txn;
-    $cast(dout_txn, txn.clone());
-    `uvm_warning("NOTOVRDN", "Override 'gold' func")
+    foreach (csi_frame[i, j]) 
+        begin
+            csi_frame[i][j] = byte'(packed_txn[2*SHORT_PACKET_WIDTH_BYTES + i*LONG_PACKET_WIDTH_BYTES + j]);
+        end
 endfunction
 
 
@@ -70,14 +84,29 @@ endfunction
 
 task csi_packet_txn::monitor(input dutb_if_proxy_base dutb_if);
     `ASSERT_TYPE_CAST(dut_if, dutb_if)
-    vif = dut_if.dut_vif.ci_vif;
+    vif = dut_if.dut_vif.d_phy_appi_vif;
 
-    wait (vif.rst) #0;   // wait for reset off
+    wait (dut_if.dut_vif.rst) #0;   // wait for reset off
 
-    foreach (image[i, j]) 
+    foreach (csi_frame_start[i]) 
         begin
-            @(posedge vif.clk iff vif.vsync & vif.hsync)
-            image[i][j] = vif.data;
+            @(posedge vif.TxWordClkHS iff vif.TxReadyHS);
+            csi_frame_start[i] = vif.TxDataHS[0];
         end
+
+    foreach (csi_frame[i, j]) 
+        begin
+            @(posedge vif.TxWordClkHS iff vif.TxReadyHS);
+            csi_frame[i][j] = vif.TxDataHS[0];
+        end
+
+    foreach (csi_frame_finish[i]) 
+        begin
+            @(posedge vif.TxWordClkHS iff vif.TxReadyHS);
+            csi_frame_finish[i] = vif.TxDataHS[0];
+        end
+
+    // `uvm_debug_m({"Content monitored:\n", convert2string()})
+
 endtask
 // ****************************************************************************************************************************

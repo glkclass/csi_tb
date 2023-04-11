@@ -9,6 +9,7 @@
 // ****************************************************************************************************************************
 package csi_typedef_pkg;
 
+    import dutb_typedef_pkg::*;
     import csi_param_pkg::*;
 
     // PHY Line states:
@@ -36,6 +37,23 @@ package csi_typedef_pkg;
         t_data_lane_signal data;
         } t_lane_signal;
 
+    // should be moved from here to separate csi util package
+    // convert four 14-bit pixels to 7-byte width vector
+    function byte_vector convert_4pixels_to_7bytes(t_pixel four_pixels[4]);
+        byte                                            seven_byte_vector [7];
+        logic           [3 * BYTE_WIDTH - 1     : 0]    three_byte_vector;
+
+        foreach (four_pixels[i]) 
+            begin
+                // 8-bit bytes
+                seven_byte_vector[i] = four_pixels[i][IMAGE_PIXEL_WIDTH - 1 -: BYTE_WIDTH];
+                // 6-bit tails
+                three_byte_vector = three_byte_vector >> IMAGE_PIXEL_TAIL_WIDTH;
+                three_byte_vector[3*BYTE_WIDTH - 1 -: IMAGE_PIXEL_TAIL_WIDTH] = four_pixels[i][IMAGE_PIXEL_TAIL_WIDTH - 1 : 0];
+            end
+        seven_byte_vector[4:6] = {three_byte_vector, three_byte_vector>>8, three_byte_vector>>16};
+        return seven_byte_vector;
+    endfunction : convert_4pixels_to_7bytes
 
 endpackage : csi_typedef_pkg
 // ****************************************************************************************************************************

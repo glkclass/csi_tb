@@ -65,15 +65,22 @@ endclass
 
 
 // ****************************************************************************************************************************
+import dutb_util_pkg::byte_xor;
+import csi_typedef_pkg::convert_4pixels_to_7bytes;
+
 class csi_image_txn extends dutb_txn_base;
     `uvm_object_utils(csi_image_txn)
 
-    static csi_image_cg     cover_wrp;
-    dut_if_proxy            dut_if;
-    virtual ci_if           vif;
+    // create single instance of class containing covergroup fopr this txn type
+    static csi_image_cg         cover_wrp = new("cover_csi_image");
+    
+    dut_if_proxy                dut_if;
+    virtual ci_if               vif;
+    
+    static  shortint            image_counter = 0;
 
-    rand int                line_gap, image_gap;                    //  gap between sequential lines and images
-    rand t_pixel            image[IMAGE_LINES][IMAGE_LINE_PIXELS];  //  2-D matrix of 14-bit pixel
+    rand    int                 line_gap, image_gap;                    //  gap between sequential lines and images
+    rand    t_pixel             image[IMAGE_LINES][IMAGE_LINE_PIXELS];  //  2-D matrix of 14-bit pixels
 
     constraint              c_line_gap      {line_gap inside {1, 2, 3};}
     constraint              c_image_gap     {image_gap inside {[10:12]};}
@@ -83,7 +90,7 @@ class csi_image_txn extends dutb_txn_base;
     extern virtual  function void               analyze_coverage_results();                                     // store coverage data (to hashmap), report results
     extern virtual  function vector             pack2vector             ();                                     // represent 'txn content' as 'vector of int'
     extern virtual  function void               unpack4vector           (vector packed_txn);                    // extract 'txn content' from 'vector of int'
-    extern virtual  function void               gold                    (dutb_txn_base txn);                    // generate a gold output txn
+    extern virtual  function dutb_txn_base      gold                    ();                                     // generate a gold output txn
     extern virtual  task                        drive                   (input dutb_if_proxy_base dutb_if);     // write 'txn content' to interface
     extern virtual  task                        monitor                 (input dutb_if_proxy_base dutb_if);     // read 'txn content' from interface
 endclass
@@ -94,10 +101,10 @@ endclass
 function csi_image_txn::new(string name = "csi_image_txn");
     super.new(name);
     // create single instance of class containing covergroup
-    if (null == cover_wrp)
-        begin
-            this.cover_wrp = new("cover_csi_image");
-        end
+    // if (null == cover_wrp)
+    //     begin
+    //         this.cover_wrp = new("cover_csi_image");
+    //     end
 endfunction
 
 
@@ -133,11 +140,54 @@ function void csi_image_txn::unpack4vector(vector packed_txn);
 endfunction
 
 typedef csi_packet_txn;
-function void csi_image_txn::gold(dutb_txn_base txn);
-    csi_packet_txn dout_txn;
-    `ASSERT_TYPE_CAST(dout_txn, txn)
-    dout_txn.image[0][0] = 33;
-    `uvm_warning("NOTOVRDN", "Override 'gold' func")
+function dutb_txn_base csi_image_txn::gold();
+    csi_packet_txn      dout_txn;
+    byte                data_id, ecc, check_sum;
+    
+    byte                                                short_packet[SHORT_PACKET_WIDTH_BYTES];
+    byte                                                long_packet_header[LONG_PACKET_HEADER_WIDTH_BYTES];
+    byte                                                long_packet_footer[LONG_PACKET_FOOTER_WIDTH_BYTES];
+    t_pixel                                             four_pixel_vector [4];
+    byte                                                seven_byte_vector [7];
+    shortint                                            wc;
+
+    dout_txn = new();
+
+    data_id = {VIRTUAL_CHANNEL, FRAME_START_DATA_TYPE};
+    ecc = byte_xor(0, {data_id, image_counter, image_counter>>8});
+    short_packet = {data_id, image_counter, image_counter>>8, ecc};
+    dout_txn.csi_frame_start = short_packet;
+    
+    data_id = {VIRTUAL_CHANNEL, FRAME_END_DATA_TYPE};
+    ecc = byte_xor(0, {data_id, image_counter, image_counter>>8});
+    short_packet = {data_id, image_counter, image_counter>>8, ecc};
+    dout_txn.csi_frame_finish = short_packet;
+    
+    foreach (image[i]) 
+        begin
+            data_id = {VIRTUAL_CHANNEL, PIXEL14BITS_DATA_TYPE};
+            wc = LONG_PACKET_WIDTH_BYTES;
+            ecc = byte_xor(0, {data_id, wc, wc>>8});
+            long_packet_header = {data_id, wc, wc>>8, ecc};
+            check_sum = byte_xor(0, long_packet_header);
+            dout_txn.csi_frame[i][0 : LONG_PACKET_HEADER_WIDTH_BYTES - 1] = long_packet_header;
+
+            // loop on every 4 pixels, convert to 7 bytes and store to 'data area' of the packet
+            for (int j = 0; j < IMAGE_LINE_PIXELS; j+=4) 
+                begin
+                    four_pixel_vector = {image[i][j], image[i][j+1], image[i][j+2], image[i][j+3]};
+                    seven_byte_vector = convert_4pixels_to_7bytes(four_pixel_vector);
+                    check_sum = byte_xor(check_sum, seven_byte_vector);
+                    for (int k = 0; k < 7; k++) 
+                        begin
+                            dout_txn.csi_frame[i][LONG_PACKET_HEADER_WIDTH_BYTES + (j/4)*7 + k] = seven_byte_vector[k];
+                        end
+                end
+            long_packet_footer = {check_sum, check_sum};
+            dout_txn.csi_frame[i][LONG_PACKET_HEADER_WIDTH_BYTES + (IMAGE_LINE_PIXELS/4)*7]     = long_packet_footer[0];
+            dout_txn.csi_frame[i][LONG_PACKET_HEADER_WIDTH_BYTES + (IMAGE_LINE_PIXELS/4)*7 + 1] = long_packet_footer[1];
+        end
+    return dout_txn;
 endfunction
 
 
@@ -182,6 +232,7 @@ task csi_image_txn::monitor(input dutb_if_proxy_base dutb_if);
             @(posedge vif.clk iff vif.vsync & vif.hsync)
             image[i][j] = vif.data;
         end
+    image_counter++;
 
     // to debug fcc
     line_gap = 1;

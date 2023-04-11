@@ -137,7 +137,7 @@ module d_phy_mcnn (
                         next_state =    (~ppi.Enable)           ?   Off :
                                         (ppi.TxRequestHS)       ?   HsTxStart : 
                                         (ppi.TxUlpsClk)         ?   UlpsStart : Error;
-                        `uvm_debug($sformatf("next_state: %s", next_state.name()))
+                        // `uvm_debug($sformatf("next_state: %s", next_state.name()))
                     end
 
                 // Start HS clock generation from 'Stop' stage
@@ -344,7 +344,7 @@ module d_phy_mcnn (
 
     always @(next_state)
         begin
-            `uvm_debug($sformatf("state: %s    next_state: %s", state.name(), next_state.name()))
+            // `uvm_debug($sformatf("state: %s    next_state: %s", state.name(), next_state.name()))
             #0 state = next_state;        
         end
 

@@ -19,6 +19,7 @@ package csi_param_pkg;
     TRUE                                =   1'b1,
     FALSE                               =   1'b0,
     X                                   =   1'bx,
+    BYTE_WIDTH                          =   8,   // Width of byte
 
     // image sensor
     IMAGE_LINES                         =   4,  // number of lines per frame
@@ -26,10 +27,19 @@ package csi_param_pkg;
     IMAGE_LINE_GAP                      =   8,  // gap in clk between two lines
     IMAGE_PIXEL_WIDTH                   =   14,  // image pixel width
     IMAGE_PIXEL_MAX_VALUE               =   (2**IMAGE_PIXEL_WIDTH) - 1,  // max pixel value 2^14 -1
+    IMAGE_PIXEL_TAIL_WIDTH              =   IMAGE_PIXEL_WIDTH - BYTE_WIDTH,  // 14-bit pixel is split in two parts: 8-bit word and 6-bit tail
 
     T_IMAGE_PIXEL_CLK                   =   1ns,  // Image pixel clock period length
 
     // Camera serial interface protocol
+    IMAGE_LINE_WIDTH_BYTES                  =   (IMAGE_LINE_PIXELS/4) * 7,
+    SHORT_PACKET_WIDTH_BYTES                =   4,
+    SHORT_PACKET_FRAME_COUNTER_WDTH_BYTES   =   2,
+    LONG_PACKET_HEADER_WIDTH_BYTES          =   4,
+    LONG_PACKET_FOOTER_WIDTH_BYTES          =   2,
+    LONG_PACKET_WC_WIDTH_BYTES              =   2,
+    LONG_PACKET_WIDTH_BYTES                 =   LONG_PACKET_HEADER_WIDTH_BYTES + IMAGE_LINE_WIDTH_BYTES + LONG_PACKET_FOOTER_WIDTH_BYTES,
+
     VIRTUAL_CHANNEL                     =   2'h0,
     ECC                                 =   8'hCC,
     PIXEL14BITS_DATA_TYPE               =   6'h2D,
@@ -44,7 +54,6 @@ package csi_param_pkg;
     // ECC_WIDTH                           =   8,
     // DATA_ID_WIDTH                       =   8,
 
-    BYTE_WIDTH                          =   8,   // Width of byte
     CSI_FIFO_DATA_WIDTH                 =   8,   // Width of FIFO word
     CSI_FIFO_MAX_SIZE                   =   10*IMAGE_LINES*IMAGE_LINE_PIXELS;
 

@@ -20,6 +20,8 @@
 
 // ****************************************************************************************************************************
 import csi_param_pkg::*;
+import dutb_typedef_pkg::*;
+import dutb_util_pkg::*;
 
 module csi_master_protocol_layer (
     ci_if.rx ci,
@@ -29,51 +31,24 @@ module csi_master_protocol_layer (
 // ****************************************************************************************************************************
 
 // ****************************************************************************************************************************
-    function void push_vector(logic   [7*BYTE_WIDTH - 1  : 0] vec, int n_bytes=7);
-        logic   [7*BYTE_WIDTH - 1  : 0] foo;
-        foo = vec;
-        repeat (n_bytes)
+    function void push_vector(byte vec[]);
+        foreach (vec[i])
             begin
-                fifo.push(foo[BYTE_WIDTH-1 : 0]);
-                foo = foo >> BYTE_WIDTH;
+                fifo.push(vec[i]);
             end
         // `uvm_debug($sformatf("Fifo size after write: %d",fifo.size()))
     endfunction : push_vector
-
-    function byte calc_check_sum(
-        byte check_sum,
-        logic   [7*BYTE_WIDTH - 1  : 0] vec,
-        int n_bytes=7);
-        
-        logic   [7*BYTE_WIDTH - 1  : 0] foo;
-        byte                            bar;
-
-        foo = vec;
-        bar = check_sum;
-        repeat (n_bytes)
-            begin
-                bar = bar ^ foo[BYTE_WIDTH-1 : 0];
-                foo = foo >> BYTE_WIDTH;
-            end
-        return bar;
-    endfunction : calc_check_sum
 // ****************************************************************************************************************************
 
 // ****************************************************************************************************************************
-    localparam
-        IMAGE_LINE_WIDTH                    =   IMAGE_LINE_PIXELS * IMAGE_PIXEL_WIDTH,
-        SHORT_PACKET_WIDTH                  =   4*BYTE_WIDTH,
-        LONG_PACKET_WIDTH                   =   4*BYTE_WIDTH + IMAGE_LINE_WIDTH + 2*BYTE_WIDTH,
-        LONG_PACKET_WC                      =   LONG_PACKET_WIDTH/BYTE_WIDTH,
-        IMAGE_PIXEL_TAIL_WIDTH              =   IMAGE_PIXEL_WIDTH - BYTE_WIDTH;  // 14-bit pixel is split in two parts: 8-bit word and 6-bit tail
 
-    logic   [4*BYTE_WIDTH - 1       : 0]            short_packet;
-    logic   [4*BYTE_WIDTH - 1       : 0]            long_packet_header;
-    logic   [2*BYTE_WIDTH - 1       : 0]            long_packet_footer;
-    logic   [4*BYTE_WIDTH - 1       : 0]            four_byte_vector;
-    logic   [3*BYTE_WIDTH - 1       : 0]            three_byte_vector;
-    logic   [7*BYTE_WIDTH - 1       : 0]            four_pixel_vector;
-    logic   [2*BYTE_WIDTH - 1       : 0]            wc, frame_counter = 1;
+    byte                                            short_packet[SHORT_PACKET_WIDTH_BYTES];
+    byte                                            long_packet_header[LONG_PACKET_HEADER_WIDTH_BYTES];
+    byte                                            long_packet_footer[LONG_PACKET_FOOTER_WIDTH_BYTES];
+    t_pixel                                         four_pixel_vector[4];
+    logic       [3 * BYTE_WIDTH - 1     : 0]        three_byte_vector;
+    byte                                            seven_byte_vector [7];
+    shortint                                        wc, frame_counter = 1;
     byte                                            data_id, ecc, check_sum;
 // ****************************************************************************************************************************
 
@@ -91,7 +66,7 @@ module csi_master_protocol_layer (
         begin
             @(posedge ci.vsync);
                 // Size in fifo words(bytes) of burst to send: 3 Packet headers (1 short packet + 2 packet headers) + payload
-                appi.BurstSize = (2*SHORT_PACKET_WIDTH + IMAGE_LINES*LONG_PACKET_WIDTH)/BYTE_WIDTH;
+                appi.BurstSize = (2*SHORT_PACKET_WIDTH_BYTES + IMAGE_LINES*LONG_PACKET_WIDTH_BYTES);
                 
                 // Generate a strobe to initiate data burst tarnsfer
                 @(posedge appi.TxWordClkHS)
@@ -103,60 +78,55 @@ module csi_master_protocol_layer (
     always
         begin
             @(posedge ci.vsync);
-            `uvm_debug("Conversion of Image data to CSI protocol packets: started")
+            `uvm_debug_m("Convert Image data to CSI protocol packets and store to FIFO: started")
             // Push data for single burst to fifo: 'Frame Start' sync Short packet,  'Payload' Long packets(image lines), 'Frame End' sync Short packet
 
             // Frame start 'sync' Short packet
             data_id = {VIRTUAL_CHANNEL, FRAME_START_DATA_TYPE};
-            ecc = calc_check_sum(0, {frame_counter, data_id}, 3);
-            short_packet = {ecc, frame_counter, data_id};
-            push_vector(short_packet, 4);
-            `uvm_debug($sformatf("Frame start sync: 0x%h", short_packet))
+            ecc = byte_xor(0, {data_id, frame_counter>>8, frame_counter});
+            short_packet = {data_id, frame_counter, frame_counter>>8, ecc};
+            push_vector(short_packet);
+            `uvm_debug($sformatf("Frame start sync: %s", byte_vector2str(short_packet)))
             // Frame(image) 'data' Long packets: every Long packet contains single image line
             repeat (IMAGE_LINES)
                 begin
                     // Image line 'data' Long packet: header
                     data_id = {VIRTUAL_CHANNEL, PIXEL14BITS_DATA_TYPE};
-                    wc = LONG_PACKET_WC;
-                    ecc = calc_check_sum(0, {wc, data_id}, 3);
-                    long_packet_header = {ecc, wc, data_id};
-                    push_vector(long_packet_header, 4);                    
-                    check_sum = calc_check_sum(0, long_packet_header, 4);
-                    `uvm_debug($sformatf("Long packet header: 0x%h", long_packet_header))
+                    wc = LONG_PACKET_WIDTH_BYTES;
+                    ecc = byte_xor(0, {data_id, wc, wc>>8});
+                    long_packet_header = {data_id, wc, wc>>8, ecc};
+                    push_vector(long_packet_header);
+                    check_sum = byte_xor(0, long_packet_header);
+                    `uvm_debug($sformatf("Long packet header: %s", byte_vector2str(long_packet_header)))
 
                     // Image line 'data' Long packet: payload
                     repeat (IMAGE_LINE_PIXELS/4)
                         begin
                             // pack four 14-bit pixels to seven 8-bit bytes according to CSI-2 spec
-                            repeat (4)
+                            foreach (four_pixel_vector[i]) 
                                 begin
-                                    @(posedge ci.clk iff ci.hsync)
-                                        // 8-bit bytes
-                                        four_byte_vector = four_byte_vector >> CSI_FIFO_DATA_WIDTH;
-                                        four_byte_vector[4*CSI_FIFO_DATA_WIDTH - 1 -: CSI_FIFO_DATA_WIDTH] = ci.data[IMAGE_PIXEL_WIDTH - 1 -: CSI_FIFO_DATA_WIDTH];
-                                        // 6-bit tails
-                                        three_byte_vector = three_byte_vector >> IMAGE_PIXEL_TAIL_WIDTH;
-                                        three_byte_vector[3*CSI_FIFO_DATA_WIDTH - 1 -: IMAGE_PIXEL_TAIL_WIDTH] = ci.data[IMAGE_PIXEL_TAIL_WIDTH - 1 -: IMAGE_PIXEL_TAIL_WIDTH];
-                                end                            
-                            four_pixel_vector = {three_byte_vector, four_byte_vector};
-                            push_vector(four_pixel_vector, 7);
-                            check_sum = calc_check_sum(check_sum, four_pixel_vector, 7);
+                                    @(posedge ci.clk iff ci.hsync) 
+                                        four_pixel_vector[i] = ci.data;
+                                end  
+                            seven_byte_vector = convert_4pixels_to_7bytes(four_pixel_vector);
+                            push_vector(seven_byte_vector);                            
+                            check_sum = byte_xor(check_sum, seven_byte_vector);
                         end
                     
                     // Image line 'data' Long packet: footer
                     long_packet_footer = {check_sum, check_sum};  // to keep it simple we calculate '8-bit xor' instead '16-bit crc'
-                    push_vector(long_packet_footer, 2);
-                    `uvm_debug($sformatf("Long packet footer: 0x%h", long_packet_footer))
+                    push_vector(long_packet_footer);
+                    `uvm_debug($sformatf("Long packet footer: %s", byte_vector2str(long_packet_footer)))
                 end
 
             // Frame end 'sync' Short package
             data_id = {VIRTUAL_CHANNEL, FRAME_END_DATA_TYPE};
-            ecc = calc_check_sum(0, {frame_counter, data_id}, 3);
-            short_packet = {ecc, frame_counter, {VIRTUAL_CHANNEL, FRAME_END_DATA_TYPE}};
-            push_vector(short_packet, 4);
-            `uvm_debug($sformatf("Frame end sync: 0x%h", short_packet))
+            ecc = byte_xor(0, {data_id, frame_counter, frame_counter>>8});
+            short_packet = {data_id, frame_counter, frame_counter>>8, ecc};
+            push_vector(short_packet);
+            `uvm_debug($sformatf("Frame end sync: %s", byte_vector2str(short_packet)))
             frame_counter++;
-            `uvm_debug("Conversion of image data to CSI protocol packets: finished")
+            `uvm_debug_m("Convert Image data to CSI protocol packets and store to FIFO: finished")
         end
 endmodule
 // ****************************************************************************************************************************

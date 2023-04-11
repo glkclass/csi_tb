@@ -27,14 +27,13 @@ endfunction
 
 task csi_image_test_seq::body();
     csi_image_txn     txn;
-
+    
     // extract barrier for sequence synchronization
     if (!uvm_config_db #(uvm_barrier)::get(get_sequencer(), "", "synch_seq_barrier", synch_seq_br_h))
         `uvm_fatal("CFG_DB_ERROR", "Unable to get 'synch_seq_barrier' from config db")
-
+    
     repeat (2)
         begin
-            // txn = csi_image_txn::type_id::create("txn");
             txn = new();
             start_item(txn);
             assert (txn.randomize());
