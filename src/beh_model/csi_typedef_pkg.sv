@@ -47,9 +47,15 @@ package csi_typedef_pkg;
             begin
                 // 8-bit bytes
                 seven_byte_vector[i] = four_pixels[i][IMAGE_PIXEL_WIDTH - 1 -: BYTE_WIDTH];
+
+                // overwrite for debug 
+                seven_byte_vector[i] = four_pixels[i][BYTE_WIDTH - 1 -: BYTE_WIDTH];
+                
                 // 6-bit tails
                 three_byte_vector = three_byte_vector >> IMAGE_PIXEL_TAIL_WIDTH;
                 three_byte_vector[3*BYTE_WIDTH - 1 -: IMAGE_PIXEL_TAIL_WIDTH] = four_pixels[i][IMAGE_PIXEL_TAIL_WIDTH - 1 : 0];
+
+
             end
         seven_byte_vector[4:6] = {three_byte_vector, three_byte_vector>>8, three_byte_vector>>16};
         return seven_byte_vector;

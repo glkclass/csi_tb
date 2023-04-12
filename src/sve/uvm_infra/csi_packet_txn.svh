@@ -40,17 +40,17 @@ function vector csi_packet_txn::pack2vector();
 
     foreach (csi_frame_start[i]) 
         begin
-            foo[i] = csi_frame_start[i];
+            foo[i] = unsigned'(csi_frame_start[i]);
         end
 
     foreach (csi_frame_finish[i]) 
         begin
-            foo[SHORT_PACKET_WIDTH_BYTES + i] = csi_frame_finish[i];
+            foo[SHORT_PACKET_WIDTH_BYTES + i] = unsigned'(csi_frame_finish[i]);
         end
 
     foreach (csi_frame[i, j]) 
         begin
-            foo[2*SHORT_PACKET_WIDTH_BYTES + i*LONG_PACKET_WIDTH_BYTES + j] = csi_frame[i][j];
+            foo[2*SHORT_PACKET_WIDTH_BYTES + i*LONG_PACKET_WIDTH_BYTES + j] = unsigned'(csi_frame[i][j]);
         end
 
     return foo;
@@ -68,7 +68,7 @@ function void csi_packet_txn::unpack4vector(vector packed_txn);
 
     foreach (csi_frame_finish[i]) 
         begin
-            csi_frame_start[i] = byte'(packed_txn[SHORT_PACKET_WIDTH_BYTES + i]);
+            csi_frame_finish[i] = byte'(packed_txn[SHORT_PACKET_WIDTH_BYTES + i]);
         end
 
     foreach (csi_frame[i, j]) 
@@ -90,19 +90,22 @@ task csi_packet_txn::monitor(input dutb_if_proxy_base dutb_if);
 
     foreach (csi_frame_start[i]) 
         begin
-            @(posedge vif.TxWordClkHS iff vif.TxReadyHS);
+            @(posedge vif.TxWordClkHS iff vif.TxReadyHS)
+            `ASSERT_X(vif.TxDataHS[0])
             csi_frame_start[i] = vif.TxDataHS[0];
         end
 
     foreach (csi_frame[i, j]) 
         begin
-            @(posedge vif.TxWordClkHS iff vif.TxReadyHS);
+            @(posedge vif.TxWordClkHS iff vif.TxReadyHS)
+            `ASSERT_X(vif.TxDataHS[0])
             csi_frame[i][j] = vif.TxDataHS[0];
         end
 
     foreach (csi_frame_finish[i]) 
         begin
-            @(posedge vif.TxWordClkHS iff vif.TxReadyHS);
+            @(posedge vif.TxWordClkHS iff vif.TxReadyHS)
+            `ASSERT_X(vif.TxDataHS[0])
             csi_frame_finish[i] = vif.TxDataHS[0];
         end
 

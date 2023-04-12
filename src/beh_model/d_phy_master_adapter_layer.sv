@@ -95,22 +95,27 @@ module d_phy_master_adapter_layer (
 
             // read rest burst
             repeat (appi.BurstSize/N_DATA_LANES - 1)
-                @(posedge hs_tx_word_clk iff (&tx_ready_hs.data)) #0 
-                    tx_data_hs = pop_vector();  // read N_DATA_LANES bytes from fifo
+                begin
+                    @(posedge hs_tx_word_clk iff (&tx_ready_hs.data)) #0 
+                        tx_data_hs = pop_vector();  // read N_DATA_LANES bytes from fifo
+                end
             
-            // last N_DATA_LANES bytes transmitted
-            @(posedge hs_tx_word_clk iff (&tx_ready_hs.data)) #0
-                tx_request_hs.data   =   {N_DATA_LANES{FALSE}};  // request Data Lane to finish transmitting
-                tx_data_hs = {N_DATA_LANES{{HS_TX_WORD_BIT_WIDTH{X}}}};
+            tx_request_hs.data   =   {N_DATA_LANES{FALSE}};  // request Data Lane to finish transmitting
 
-            `uvm_debug_m($sformatf("Burst read out finished. Fifo size: %0d",fifo.size()))
+            fork
+                // last N_DATA_LANES bytes transmitted
+                @(posedge hs_tx_word_clk iff (&tx_ready_hs.data)) #0
+                    tx_data_hs = {N_DATA_LANES{{HS_TX_WORD_BIT_WIDTH{X}}}};
 
-            // given request is processed
-            @(negedge hs_tx_word_clk)
-                open_requests--;
+                `uvm_debug_m($sformatf("Burst read out finished. Fifo size: %0d",fifo.size()))
 
-            @(negedge |tx_ready_hs.data)
-                tx_request_hs.clk   =   FALSE;                  //  request Clock Lane to stop Clock
+                begin
+                    @(negedge |tx_ready_hs.data)
+                        tx_request_hs.clk   =   FALSE;                  //  request Clock Lane to stop Clock
+                        open_requests--;  // given request is processed                    
+                end
+            join
+
 
         end
 

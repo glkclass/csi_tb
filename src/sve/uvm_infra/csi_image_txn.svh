@@ -65,7 +65,7 @@ endclass
 
 
 // ****************************************************************************************************************************
-import dutb_util_pkg::byte_xor;
+import dutb_util_pkg::byte_crc;
 import csi_typedef_pkg::convert_4pixels_to_7bytes;
 
 class csi_image_txn extends dutb_txn_base;
@@ -154,12 +154,12 @@ function dutb_txn_base csi_image_txn::gold();
     dout_txn = new();
 
     data_id = {VIRTUAL_CHANNEL, FRAME_START_DATA_TYPE};
-    ecc = byte_xor(0, {data_id, image_counter, image_counter>>8});
+    ecc = byte_crc(0, {data_id, image_counter, image_counter>>8});
     short_packet = {data_id, image_counter, image_counter>>8, ecc};
     dout_txn.csi_frame_start = short_packet;
     
     data_id = {VIRTUAL_CHANNEL, FRAME_END_DATA_TYPE};
-    ecc = byte_xor(0, {data_id, image_counter, image_counter>>8});
+    ecc = byte_crc(0, {data_id, image_counter, image_counter>>8});
     short_packet = {data_id, image_counter, image_counter>>8, ecc};
     dout_txn.csi_frame_finish = short_packet;
     
@@ -167,9 +167,9 @@ function dutb_txn_base csi_image_txn::gold();
         begin
             data_id = {VIRTUAL_CHANNEL, PIXEL14BITS_DATA_TYPE};
             wc = LONG_PACKET_WIDTH_BYTES;
-            ecc = byte_xor(0, {data_id, wc, wc>>8});
+            ecc = byte_crc(0, {data_id, wc, wc>>8});
             long_packet_header = {data_id, wc, wc>>8, ecc};
-            check_sum = byte_xor(0, long_packet_header);
+            check_sum = byte_crc(0, long_packet_header);
             dout_txn.csi_frame[i][0 : LONG_PACKET_HEADER_WIDTH_BYTES - 1] = long_packet_header;
 
             // loop on every 4 pixels, convert to 7 bytes and store to 'data area' of the packet
@@ -177,7 +177,7 @@ function dutb_txn_base csi_image_txn::gold();
                 begin
                     four_pixel_vector = {image[i][j], image[i][j+1], image[i][j+2], image[i][j+3]};
                     seven_byte_vector = convert_4pixels_to_7bytes(four_pixel_vector);
-                    check_sum = byte_xor(check_sum, seven_byte_vector);
+                    check_sum = byte_crc(check_sum, seven_byte_vector);
                     for (int k = 0; k < 7; k++) 
                         begin
                             dout_txn.csi_frame[i][LONG_PACKET_HEADER_WIDTH_BYTES + (j/4)*7 + k] = seven_byte_vector[k];

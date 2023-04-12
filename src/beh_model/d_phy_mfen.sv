@@ -95,7 +95,7 @@ module d_phy_mfen (
 
                         wait (ppi.Enable);  // Take Lane out from Shutdown mode
                         next_state = Init;
-                        `uvm_debug($sformatf("next_state: %s", next_state.name()))
+                        //`uvm_debug($sformatf("next_state: %s", next_state.name()))
                     end
 
                 // Initialization stage
@@ -111,7 +111,7 @@ module d_phy_mfen (
                             #T_INIT;
                         join_any disable fork;
                         next_state = (~ppi.Enable) ? Off : Stop;
-                        `uvm_debug($sformatf("next_state: %s", next_state.name()))
+                        //`uvm_debug($sformatf("next_state: %s", next_state.name()))
                     end
 
                 // Generate LP11 and waiting for requests

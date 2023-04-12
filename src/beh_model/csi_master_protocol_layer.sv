@@ -35,6 +35,7 @@ module csi_master_protocol_layer (
         foreach (vec[i])
             begin
                 fifo.push(vec[i]);
+                // `uvm_debug({"Push: ", int2str(unsigned'(vec[i]), "0x%0H")})
             end
         // `uvm_debug($sformatf("Fifo size after write: %d",fifo.size()))
     endfunction : push_vector
@@ -83,7 +84,7 @@ module csi_master_protocol_layer (
 
             // Frame start 'sync' Short packet
             data_id = {VIRTUAL_CHANNEL, FRAME_START_DATA_TYPE};
-            ecc = byte_xor(0, {data_id, frame_counter>>8, frame_counter});
+            ecc = byte_crc(0, {data_id, frame_counter, frame_counter>>8});
             short_packet = {data_id, frame_counter, frame_counter>>8, ecc};
             push_vector(short_packet);
             `uvm_debug($sformatf("Frame start sync: %s", byte_vector2str(short_packet)))
@@ -93,10 +94,10 @@ module csi_master_protocol_layer (
                     // Image line 'data' Long packet: header
                     data_id = {VIRTUAL_CHANNEL, PIXEL14BITS_DATA_TYPE};
                     wc = LONG_PACKET_WIDTH_BYTES;
-                    ecc = byte_xor(0, {data_id, wc, wc>>8});
+                    ecc = byte_crc(0, {data_id, wc, wc>>8});
                     long_packet_header = {data_id, wc, wc>>8, ecc};
                     push_vector(long_packet_header);
-                    check_sum = byte_xor(0, long_packet_header);
+                    check_sum = byte_crc(0, long_packet_header);
                     `uvm_debug($sformatf("Long packet header: %s", byte_vector2str(long_packet_header)))
 
                     // Image line 'data' Long packet: payload
@@ -107,10 +108,11 @@ module csi_master_protocol_layer (
                                 begin
                                     @(posedge ci.clk iff ci.hsync) 
                                         four_pixel_vector[i] = ci.data;
+                                        `ASSERT_X(four_pixel_vector[i])
                                 end  
                             seven_byte_vector = convert_4pixels_to_7bytes(four_pixel_vector);
                             push_vector(seven_byte_vector);                            
-                            check_sum = byte_xor(check_sum, seven_byte_vector);
+                            check_sum = byte_crc(check_sum, seven_byte_vector);
                         end
                     
                     // Image line 'data' Long packet: footer
@@ -121,7 +123,7 @@ module csi_master_protocol_layer (
 
             // Frame end 'sync' Short package
             data_id = {VIRTUAL_CHANNEL, FRAME_END_DATA_TYPE};
-            ecc = byte_xor(0, {data_id, frame_counter, frame_counter>>8});
+            ecc = byte_crc(0, {data_id, frame_counter, frame_counter>>8});
             short_packet = {data_id, frame_counter, frame_counter>>8, ecc};
             push_vector(short_packet);
             `uvm_debug($sformatf("Frame end sync: %s", byte_vector2str(short_packet)))

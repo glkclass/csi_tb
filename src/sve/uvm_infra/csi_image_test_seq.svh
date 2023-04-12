@@ -32,7 +32,7 @@ task csi_image_test_seq::body();
     if (!uvm_config_db #(uvm_barrier)::get(get_sequencer(), "", "synch_seq_barrier", synch_seq_br_h))
         `uvm_fatal("CFG_DB_ERROR", "Unable to get 'synch_seq_barrier' from config db")
     
-    repeat (2)
+    repeat (5)
         begin
             txn = new();
             start_item(txn);
