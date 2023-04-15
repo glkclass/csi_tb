@@ -37,7 +37,7 @@ task csi_image_test_seq::body();
             txn = new();
             start_item(txn);
             assert (txn.randomize());
-            `uvm_debug("Txn sent")
+            // `uvm_debug("Txn sent")
             finish_item (txn);
             // synch_seq_br_h.wait_for();
         end

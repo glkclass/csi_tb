@@ -1,6 +1,5 @@
 # DUTB lib
 $DUTB_HOME/src/sve/dutb_param_pkg.sv
-$DUTB_HOME/src/sve/dutb_macro_pkg.sv
 $DUTB_HOME/src/sve/dutb_typedef_pkg.sv
 $DUTB_HOME/src/sve/dutb_util_pkg.sv
 $DUTB_HOME/src/sve/dutb_pkg.sv 	# UVM infra

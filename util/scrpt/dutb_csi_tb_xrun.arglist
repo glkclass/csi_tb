@@ -1,0 +1,29 @@
+-f ../util/scrpt/dutb_csi_tb_src.filelist
+
++define+YES_WAVE+NO_PROBE+DUTB_DB_MODE=WRITE
+
+#+incdir+$UVM_HOME/src
+#+incdir+$UVM_HOME
+
++incdir+$DUTB_HOME/src/sve+$DUTB_HOME/src/sve/dutb_agent+$DUTB_HOME/src/sve/dutb_env+$DUTB_HOME/src/sve/dutb_if_proxy
++incdir+$DUTB_HOME/src/sve/dutb_scb+$DUTB_HOME/src/sve/dutb_test+$DUTB_HOME/src/sve/dutb_txn+$DUTB_HOME/src/sve/dutb_util
++incdir+../src/sve/uvm_infra
+
+#-reflib ./dutblib
+
+-cov_cgsample
+-uvmhome CDNS-1.2
+#-uvmhome $UVM_HOME
+-uvmnocdnsextra
++UVM_NO_RELNOTES
++UVM_TESTNAME=dut_test
++UVM_VERBOSITY=UVM_HIGH
+#+UVM_CONFIG_DB_TRACE
+#-nowarn DLWNEW
+
+-top ttb
+
+-disable_sem2009
+-timescale 1ps/1ps
+-access +rwc
+

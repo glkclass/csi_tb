@@ -43,7 +43,7 @@ class csi_image_cg extends uvm_object;
     
     function new(string name = "cg_name");
         cg = new(name);
-        `uvm_debug({"'", name, "'", " covergroup was created"})
+        // `uvm_debug({"'", name, "'", " covergroup was created"})
     endfunction
 
     
@@ -130,8 +130,8 @@ endfunction
 
 
 function void csi_image_txn::unpack4vector(vector packed_txn);
-    `ASSERT (packed_txn.size() == IMAGE_LINES*IMAGE_LINE_PIXELS, 
-            $sformatf("Wrong 'packed_txn' size: %0d", packed_txn.size()))    
+    `assert (packed_txn.size() == IMAGE_LINES*IMAGE_LINE_PIXELS, 
+            $sformatf("Wrong 'packed_txn' size: %0d", packed_txn.size()))
     
     foreach (image[i, j]) 
         begin
@@ -192,7 +192,7 @@ endfunction
 
 
 task csi_image_txn::drive(input dutb_if_proxy_base dutb_if);
-    `ASSERT_TYPE_CAST(dut_if, dutb_if)
+    `assert_type_cast(dut_if, dutb_if)
     vif = dut_if.dut_vif.ci_vif;
 
     wait (vif.rst);   // wait for reset off
@@ -222,7 +222,7 @@ endtask
 
 
 task csi_image_txn::monitor(input dutb_if_proxy_base dutb_if);
-    `ASSERT_TYPE_CAST(dut_if, dutb_if)
+    `assert_type_cast(dut_if, dutb_if)
     vif = dut_if.dut_vif.ci_vif;
 
     wait (vif.rst) #0;   // wait for reset off

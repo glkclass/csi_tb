@@ -1,5 +1,5 @@
--f ../util/scrpt/dutb_sve_src.filelist  	# DUTB lib 
--f ../util/scrpt/csi_beh_model.filelist  	# CSI behavioral model
+-f ../util/scrpt/dutb_src.filelist  			# DUTB lib 
+-f ../util/scrpt/csi_beh_model_src.filelist  	# CSI behavioral model
 
 # CSI_TB
 ../src/sve/dut_tb_param_pkg.sv

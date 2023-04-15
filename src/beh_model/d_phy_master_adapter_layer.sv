@@ -88,7 +88,7 @@ module d_phy_master_adapter_layer (
             tx_request_hs.clk   = TRUE;  // request Clock Lane to start Clock
             @(posedge tx_ready_hs.clk);  // feedback: Clock is running
 
-            `uvm_debug_m($sformatf("Burst read out started. Fifo size: %0d", fifo.size()))
+            // `uvm_debug_m($sformatf("Burst read out started. Fifo size: %0d", fifo.size()))
             @(posedge hs_tx_word_clk) #0 
                 tx_request_hs.data  =   {N_DATA_LANES{TRUE}};  // request All Data Lanes to start transmitting
                 tx_data_hs = pop_vector();  // read first N_DATA_LANES bytes from fifo
@@ -107,7 +107,7 @@ module d_phy_master_adapter_layer (
                 @(posedge hs_tx_word_clk iff (&tx_ready_hs.data)) #0
                     tx_data_hs = {N_DATA_LANES{{HS_TX_WORD_BIT_WIDTH{X}}}};
 
-                `uvm_debug_m($sformatf("Burst read out finished. Fifo size: %0d",fifo.size()))
+                // `uvm_debug_m($sformatf("Burst read out finished. Fifo size: %0d",fifo.size()))
 
                 begin
                     @(negedge |tx_ready_hs.data)

@@ -79,7 +79,7 @@ module csi_master_protocol_layer (
     always
         begin
             @(posedge ci.vsync);
-            `uvm_debug_m("Convert Image data to CSI protocol packets and store to FIFO: started")
+            // `uvm_debug_m("Convert Image data to CSI protocol packets and store to FIFO: started")
             // Push data for single burst to fifo: 'Frame Start' sync Short packet,  'Payload' Long packets(image lines), 'Frame End' sync Short packet
 
             // Frame start 'sync' Short packet
@@ -87,7 +87,7 @@ module csi_master_protocol_layer (
             ecc = byte_crc(0, {data_id, frame_counter, frame_counter>>8});
             short_packet = {data_id, frame_counter, frame_counter>>8, ecc};
             push_vector(short_packet);
-            `uvm_debug($sformatf("Frame start sync: %s", byte_vector2str(short_packet)))
+            // `uvm_debug($sformatf("Frame start sync: %s", byte_vector2str(short_packet)))
             // Frame(image) 'data' Long packets: every Long packet contains single image line
             repeat (IMAGE_LINES)
                 begin
@@ -98,7 +98,7 @@ module csi_master_protocol_layer (
                     long_packet_header = {data_id, wc, wc>>8, ecc};
                     push_vector(long_packet_header);
                     check_sum = byte_crc(0, long_packet_header);
-                    `uvm_debug($sformatf("Long packet header: %s", byte_vector2str(long_packet_header)))
+                    // `uvm_debug($sformatf("Long packet header: %s", byte_vector2str(long_packet_header)))
 
                     // Image line 'data' Long packet: payload
                     repeat (IMAGE_LINE_PIXELS/4)
@@ -108,7 +108,7 @@ module csi_master_protocol_layer (
                                 begin
                                     @(posedge ci.clk iff ci.hsync) 
                                         four_pixel_vector[i] = ci.data;
-                                        `ASSERT_X(four_pixel_vector[i])
+                                        `assert_x(four_pixel_vector[i])
                                 end  
                             seven_byte_vector = convert_4pixels_to_7bytes(four_pixel_vector);
                             push_vector(seven_byte_vector);                            
@@ -118,7 +118,7 @@ module csi_master_protocol_layer (
                     // Image line 'data' Long packet: footer
                     long_packet_footer = {check_sum, check_sum};  // to keep it simple we calculate '8-bit xor' instead '16-bit crc'
                     push_vector(long_packet_footer);
-                    `uvm_debug($sformatf("Long packet footer: %s", byte_vector2str(long_packet_footer)))
+                    // `uvm_debug($sformatf("Long packet footer: %s", byte_vector2str(long_packet_footer)))
                 end
 
             // Frame end 'sync' Short package
@@ -126,9 +126,9 @@ module csi_master_protocol_layer (
             ecc = byte_crc(0, {data_id, frame_counter, frame_counter>>8});
             short_packet = {data_id, frame_counter, frame_counter>>8, ecc};
             push_vector(short_packet);
-            `uvm_debug($sformatf("Frame end sync: %s", byte_vector2str(short_packet)))
+            // `uvm_debug($sformatf("Frame end sync: %s", byte_vector2str(short_packet)))
             frame_counter++;
-            `uvm_debug_m("Convert Image data to CSI protocol packets and store to FIFO: finished")
+            // `uvm_debug_m("Convert Image data to CSI protocol packets and store to FIFO: finished")
         end
 endmodule
 // ****************************************************************************************************************************

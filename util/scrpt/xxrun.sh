@@ -5,7 +5,6 @@
 
 # echo "Run at `hostnamectl` by $SHELL"
 
-export DUT_TB_HOME=../../dut_tb
 export DUTB_HOME=../../dutb
 
 

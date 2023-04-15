@@ -58,8 +58,8 @@ endfunction
 
 
 function void csi_packet_txn::unpack4vector(vector packed_txn);
-    `ASSERT (packed_txn.size() == (IMAGE_LINES * LONG_PACKET_WIDTH_BYTES + 2*SHORT_PACKET_WIDTH_BYTES), 
-            $sformatf("Wrong 'packed_txn' size: %0d", packed_txn.size()))    
+    `assert (packed_txn.size() == (IMAGE_LINES * LONG_PACKET_WIDTH_BYTES + 2*SHORT_PACKET_WIDTH_BYTES), 
+        $sformatf("Wrong 'packed_txn' size: %0d", packed_txn.size()))    
     
     foreach (csi_frame_start[i]) 
         begin
@@ -83,7 +83,7 @@ endfunction
 
 
 task csi_packet_txn::monitor(input dutb_if_proxy_base dutb_if);
-    `ASSERT_TYPE_CAST(dut_if, dutb_if)
+    `assert_type_cast(dut_if, dutb_if)
     vif = dut_if.dut_vif.d_phy_appi_vif;
 
     wait (dut_if.dut_vif.rst) #0;   // wait for reset off
@@ -91,21 +91,21 @@ task csi_packet_txn::monitor(input dutb_if_proxy_base dutb_if);
     foreach (csi_frame_start[i]) 
         begin
             @(posedge vif.TxWordClkHS iff vif.TxReadyHS)
-            `ASSERT_X(vif.TxDataHS[0])
+            `assert_x(vif.TxDataHS[0])
             csi_frame_start[i] = vif.TxDataHS[0];
         end
 
     foreach (csi_frame[i, j]) 
         begin
             @(posedge vif.TxWordClkHS iff vif.TxReadyHS)
-            `ASSERT_X(vif.TxDataHS[0])
+            `assert_x(vif.TxDataHS[0])
             csi_frame[i][j] = vif.TxDataHS[0];
         end
 
     foreach (csi_frame_finish[i]) 
         begin
             @(posedge vif.TxWordClkHS iff vif.TxReadyHS)
-            `ASSERT_X(vif.TxDataHS[0])
+            `assert_x(vif.TxDataHS[0])
             csi_frame_finish[i] = vif.TxDataHS[0];
         end
 

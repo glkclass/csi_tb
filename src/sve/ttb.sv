@@ -60,7 +60,7 @@ module ttb;
         end
 
     // store waveform if not disabled
-    initial `STORE_WAVE
+    initial `store_wave
 endmodule
 // ****************************************************************************************************************************
 

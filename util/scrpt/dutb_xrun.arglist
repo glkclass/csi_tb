@@ -1,0 +1,11 @@
+-makelib  ./dutblib
+-f ../util/scrpt/dutb_src.filelist
+-endlib
+
++incdir+$DUTB_HOME/src/sve+$DUTB_HOME/src/sve/dutb_agent+$DUTB_HOME/src/sve/dutb_env+$DUTB_HOME/src/sve/dutb_if_proxy
++incdir+$DUTB_HOME/src/sve/dutb_scb+$DUTB_HOME/src/sve/dutb_test+$DUTB_HOME/src/sve/dutb_txn+$DUTB_HOME/src/sve/dutb_util
+
+-uvmhome CDNS-1.2
+-uvmnocdnsextra
++UVM_VERBOSITY=UVM_HIGH
+#+UVM_CONFIG_DB_TRACE
