@@ -12,6 +12,7 @@ class csi_image_test_seq extends uvm_sequence #(csi_image_txn);
     `uvm_object_utils(csi_image_test_seq)
 
     uvm_barrier         synch_seq_br_h;
+    dutb_db             txn_db_h;
 
     extern function     new(string name = "csi_image_test_seq");
     extern task         body();
@@ -32,11 +33,17 @@ task csi_image_test_seq::body();
     if (!uvm_config_db #(uvm_barrier)::get(get_sequencer(), "", "synch_seq_barrier", synch_seq_br_h))
         `uvm_fatal("CFG_DB_ERROR", "Unable to get 'synch_seq_barrier' from config db")
     
+    if (!uvm_config_db #(dutb_db)::get(get_sequencer(), "", "txn_db_h", txn_db_h))
+        `uvm_fatal("CFG_DB_ERROR", "Unable to get 'txn_db_h' from config db")
+
     repeat (5)
         begin
             txn = new();
             start_item(txn);
             assert (txn.randomize());
+
+            // txn.load_txn_db(txn_db_h);
+            
             // `uvm_debug("Txn sent")
             finish_item (txn);
             // synch_seq_br_h.wait_for();

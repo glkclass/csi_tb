@@ -24,10 +24,5 @@ module dut_wrp(dut_if vif);
         .appi(vif.d_phy_appi_vif.adapter),
         .fifo(vif.fifo_vif),
         .line(vif.d_phy_adapter_line_vif.master));
-
-
-    `ifndef NO_PROBE
-        probe probe ();
-    `endif
 endmodule
 // ****************************************************************************************************************************

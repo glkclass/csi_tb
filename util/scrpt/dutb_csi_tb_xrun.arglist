@@ -1,6 +1,7 @@
 -f ../util/scrpt/dutb_csi_tb_src.filelist
 
-+define+YES_WAVE+NO_PROBE+DUTB_DB_MODE=WRITE
++STORE_WAVE
++TXN_DB_MODE=WRITE
 
 #+incdir+$UVM_HOME/src
 #+incdir+$UVM_HOME
@@ -18,7 +19,7 @@
 +UVM_NO_RELNOTES
 +UVM_TESTNAME=dut_test
 +UVM_VERBOSITY=UVM_HIGH
-#+UVM_CONFIG_DB_TRACE
+# +UVM_CONFIG_DB_TRACE
 #-nowarn DLWNEW
 
 -top ttb

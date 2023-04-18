@@ -45,7 +45,7 @@ endfunction
 
 
 function void dut_test::start_of_simulation_phase(uvm_phase phase);
-    // super.start_of_simulation_phase(phase);
+    super.start_of_simulation_phase(phase);
 endfunction
 
 
@@ -53,7 +53,6 @@ task dut_test::run_phase(uvm_phase phase);
     csi_image_test_seq seq_h;
 
     seq_h = csi_image_test_seq::type_id::create("seq_h");
-    // dut_handler_h.recorder_db_mode = WRITE;  // enable store failed txn to 'recorder_db' file
     phase.raise_objection(this, "dut_test started");
     fork
         seq_h.start(env_h.din_agent_h.sqncr_h);
